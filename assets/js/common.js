@@ -81,6 +81,12 @@
     return data;
   }
 
+  // DB 정책은 profiles.role = '관리자'(is_admin 함수) 또는 profiles.is_admin 을 씁니다.
+  // 화면에서는 둘 중 하나라도 해당하면 관리 메뉴를 보여 주고, 최종 판단은 DB가 합니다.
+  function isAdmin(profile) {
+    return Boolean(profile && (profile.role === '관리자' || profile.is_admin === true));
+  }
+
   function displayName(user, profile) {
     return profile?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '';
   }
@@ -221,6 +227,93 @@
       .sort((x, y) => x.date - y.date);
   }
 
+  // ---------- 가정통신문 (Supabase) ----------
+  const LETTER_BUCKET = 'home-letters';
+
+  async function fetchLetters({ page = 1, size = 10, query = '' } = {}) {
+    const from = (page - 1) * size;
+    let req = sb
+      .from('home_letters')
+      .select('id, title, target, attachments, author, created_at', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, from + size - 1);
+    if (query) req = req.ilike('title', `%${query.replace(/[%_\\]/g, '\\$&')}%`);
+    const { data, error, count } = await req;
+    if (error) throw error;
+    return { rows: data, total: count ?? 0 };
+  }
+
+  async function fetchLetter(id) {
+    const { data, error } = await sb.from('home_letters').select('*').eq('id', id).maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+
+  // 원래 파일 이름으로 내려받도록 download 옵션을 붙인 공개 주소
+  function letterFileUrl(file) {
+    const base = sb.storage.from(LETTER_BUCKET).getPublicUrl(file.path).data.publicUrl;
+    return `${base}?download=${encodeURIComponent(file.name)}`;
+  }
+
+  function formatSize(bytes) {
+    if (!bytes) return '';
+    if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))}KB`;
+    return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
+  }
+
+  // ---------- 시간표 (NEIS) ----------
+  // 학년도는 3월에 시작합니다. 1~2월은 전 학년도입니다.
+  const schoolYear = (d) => (d.getMonth() < 2 ? d.getFullYear() - 1 : d.getFullYear());
+
+  async function neisGet(service, params) {
+    const neis = school.neis;
+    const url = new URL(`https://open.neis.go.kr/hub/${service}`);
+    url.search = new URLSearchParams({
+      KEY: neis.key,
+      Type: 'json',
+      pIndex: '1',
+      pSize: '1000',
+      ATPT_OFCDC_SC_CODE: neis.officeCode,
+      SD_SCHUL_CODE: neis.schoolCode,
+      ...params,
+    }).toString();
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`NEIS ${res.status}`);
+    const json = await res.json();
+    if (!json[service]) {
+      if (json.RESULT?.CODE === 'INFO-200') return [];
+      throw new Error(json.RESULT?.MESSAGE || 'NEIS error');
+    }
+    return json[service][1]?.row ?? [];
+  }
+
+  // { 1: ['1','2',...], 2: [...], 3: [...] }
+  async function fetchClasses(year) {
+    const rows = await neisGet('classInfo', { AY: String(year) });
+    const out = {};
+    rows.forEach((r) => {
+      (out[r.GRADE] ||= []).push(r.CLASS_NM);
+    });
+    Object.values(out).forEach((list) => list.sort((a, b) => Number(a) - Number(b)));
+    return out;
+  }
+
+  // 날짜(YYYYMMDD) → 교시 → 과목
+  async function fetchTimetable(grade, classNm, from, to) {
+    const rows = await neisGet('misTimetable', {
+      AY: String(schoolYear(from)),
+      GRADE: String(grade),
+      CLASS_NM: String(classNm),
+      TI_FROM_YMD: ymd(from),
+      TI_TO_YMD: ymd(to),
+    });
+    const out = {};
+    rows.forEach((r) => {
+      (out[r.ALL_TI_YMD] ||= {})[Number(r.PERIO)] = String(r.ITRT_CNTNT || '').replace(/^-\s*/, '');
+    });
+    return out;
+  }
+
   // ---------- 학사일정 (NEIS) ----------
   const parseYmd = (v) => new Date(+v.slice(0, 4), +v.slice(4, 6) - 1, +v.slice(6, 8));
   const HIDDEN_EVENTS = ['토요휴업일'];
@@ -290,8 +383,10 @@
   const NAV = [
     { id: 'about', href: 'about.html', label: '학교소개' },
     { id: 'notice', href: 'notice.html', label: '공지사항' },
+    { id: 'letters', href: 'letters.html', label: '가정통신문' },
     { id: 'news', href: 'news.html', label: '학교소식' },
     { id: 'schedule', href: 'schedule.html', label: '학사일정' },
+    { id: 'timetable', href: 'timetable.html', label: '시간표' },
     { id: 'meals', href: 'meals.html', label: '급식안내' },
   ];
 
@@ -387,7 +482,7 @@
     }
     const profile = await getProfile(user);
     slot.innerHTML = `
-      <span class="util__user">${escapeHtml(displayName(user, profile))}님${profile?.is_admin ? ' <em>관리자</em>' : ''}</span>
+      <span class="util__user">${escapeHtml(displayName(user, profile))}님${isAdmin(profile) ? ' <em>관리자</em>' : ''}</span>
       <button type="button" data-logout>로그아웃</button>`;
     slot.querySelector('[data-logout]').addEventListener('click', async () => {
       await signOut();
@@ -448,7 +543,8 @@
     formatDate, isRecent, escapeHtml, textToHtml, safeImageUrl,
     getUser, getProfile, displayName, safeNext, signInWithGoogle, signOut,
     fetchNotices, fetchNotice, fetchAdjacentNotices, fetchNews, fetchMeals, splitAllergy, sameDay,
-    fetchSchedule, groupEvents, gradeLabel,
+    fetchSchedule, groupEvents, gradeLabel, isAdmin, ymd, schoolYear,
+    LETTER_BUCKET, fetchLetters, fetchLetter, letterFileUrl, formatSize, fetchClasses, fetchTimetable,
     mountLayout, loginRequired, showError, googleIcon,
   };
 })();

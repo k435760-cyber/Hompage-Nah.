@@ -86,7 +86,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 
 .gnb ul { display: flex; gap: 4px; }
 .gnb a {
-  display: block; padding: 28px 22px; font-size: 17px; font-weight: 600; color: var(--ink);
+  display: block; padding: 28px 16px; font-size: 17px; font-weight: 600; color: var(--ink);
   border-bottom: 3px solid transparent;
 }
 .gnb a:hover { text-decoration: none; color: var(--navy); }
@@ -330,6 +330,35 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .day__none { padding: 40px 0; text-align: center; color: var(--muted); font-size: 14px; }
 .note { margin-top: 20px; font-size: 13px; color: var(--muted); }
 
+/* ---------- letters ---------- */
+.clip { display: inline-block; vertical-align: -3px; color: var(--muted); }
+.files { margin: 0; padding: 14px 8px; border-bottom: 1px solid var(--line); background: var(--bg-soft); }
+.files li { display: flex; align-items: center; gap: 6px; padding: 4px 0; font-size: 15px; }
+.files a { display: inline-flex; align-items: center; gap: 6px; color: var(--navy); font-weight: 500; }
+.files small { color: var(--muted); }
+.field select { height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 2px; background: #fff; min-width: 160px; }
+.field input[type='file'] { padding: 8px 0; border: 0; }
+.field__help { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+
+/* ---------- timetable ---------- */
+.tt-pick { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; }
+.tt-pick label { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ink); }
+.tt-pick select { height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 2px; background: #fff; font-size: 15px; min-width: 96px; }
+.tt-wrap { overflow-x: auto; }
+.tt { width: 100%; min-width: 320px; table-layout: fixed; border-collapse: collapse; border-top: 2px solid var(--ink); }
+.tt th, .tt td { border: 1px solid var(--line-soft); text-align: center; }
+.tt tr > :first-child { border-left: 0; }
+.tt tr > :last-child { border-right: 0; }
+.tt thead th { padding: 10px 4px; background: var(--bg-soft); font-weight: 600; color: var(--ink); }
+.tt thead th small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+.tt thead th:first-child { width: 72px; }
+.tt tbody th { padding: 0 4px; font-size: 13px; font-weight: 600; color: var(--muted); background: #fafbfc; }
+.tt td { height: 56px; padding: 6px 4px; font-size: 15px; color: var(--ink); word-break: keep-all; }
+.tt .is-today { background: #eef2f8; }
+.tt thead th.is-today { background: var(--navy); color: #fff; }
+.tt thead th.is-today small { color: #c5cedc; }
+.tt td.is-off { background: #fafbfc; }
+
 /* ---------- schedule ---------- */
 .cal { width: 100%; table-layout: fixed; border-collapse: collapse; border-top: 2px solid var(--ink); }
 .cal th { padding: 10px 4px; background: var(--bg-soft); border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 600; color: var(--ink); }
@@ -482,6 +511,10 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   .policy__lead, .policy__toc { padding: 16px; }
   .policy__table { display: block; overflow-x: auto; }
   .policy__table tbody th { white-space: normal; }
+  .tt thead th:first-child { width: 44px; }
+  .tt tbody th { font-size: 11px; }
+  .tt td { height: 48px; padding: 4px 1px; font-size: 12px; line-height: 1.3; letter-spacing: -0.03em; overflow-wrap: anywhere; }
+  .tt thead th { padding: 8px 2px; font-size: 14px; }
   .cal td { height: 56px; padding: 4px 2px; text-align: center; }
   .cal__ev { display: none; }
   .cal td.has-event .cal__day::after { content: ''; display: block; width: 5px; height: 5px; margin: 2px auto 0; border-radius: 50%; background: var(--navy); }

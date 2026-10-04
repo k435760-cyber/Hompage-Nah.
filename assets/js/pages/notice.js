@@ -1,6 +1,7 @@
 (function () {
   'use strict';
 
+  const { isAdmin } = window.App;
   const { mountLayout, loginRequired, showError, getUser, getProfile, displayName, sb, fetchNotices, fetchNotice, fetchAdjacentNotices, escapeHtml, formatDate, isRecent, textToHtml, safeImageUrl } = window.App;
 
   mountLayout('notice');
@@ -65,7 +66,7 @@
         ${pages.join('')}
         ${page < lastPage ? `<a href="${link({ page: page + 1, q: query })}">다음</a>` : ''}
       </nav>
-      ${profile?.is_admin ? `<div class="actions"><a class="btn" href="${link({ write: '1' })}">글쓰기</a></div>` : ''}`;
+      ${isAdmin(profile) ? `<div class="actions"><a class="btn" href="${link({ write: '1' })}">글쓰기</a></div>` : ''}`;
   }
 
   async function renderDetail(id, profile) {
@@ -97,7 +98,7 @@
         <li><span>이전글</span>${prev ? `<a href="${link({ id: prev.id })}">${escapeHtml(prev.title)}</a>` : '<em>이전 글이 없습니다.</em>'}</li>
       </ul>
       <div class="actions">
-        ${profile?.is_admin ? '<button type="button" class="btn btn--danger" data-delete>삭제</button>' : ''}
+        ${isAdmin(profile) ? '<button type="button" class="btn btn--danger" data-delete>삭제</button>' : ''}
         <a class="btn btn--ghost" href="notice.html">목록</a>
       </div>`;
 
@@ -110,7 +111,7 @@
   }
 
   function renderWrite(user, profile) {
-    if (!profile?.is_admin) {
+    if (!isAdmin(profile)) {
       root.innerHTML = '<p class="empty">글쓰기 권한이 없습니다.</p>';
       return;
     }
