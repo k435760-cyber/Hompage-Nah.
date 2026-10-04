@@ -6,12 +6,12 @@
 
 | 경로 | 내용 |
 | --- | --- |
-| `/` | 메인 (오늘의 급식, 공지사항·학교소식 최신글, 바로가기) |
-| `/about.html` | 학교장 인사말, 교육목표, 연혁, 오시는 길 |
-| `/notice.html` | 공지사항 목록·검색·상세. 관리자는 글쓰기/삭제 가능 |
-| `/news.html` | 학교소식 (분류별 필터) |
-| `/meals.html` | 주간 식단표 |
-| `/login.html` | Google 로그인 및 OAuth 콜백 처리 |
+| `index.html` | 메인 (오늘의 급식, 공지사항·학교소식 최신글, 바로가기) |
+| `about.html` | 학교장 인사말, 교육목표, 연혁, 오시는 길 |
+| `notice.html` | 공지사항 목록·검색·상세. 관리자는 글쓰기/삭제 가능 |
+| `news.html` | 학교소식 (분류별 필터) |
+| `meals.html` | 주간 식단표 |
+| `login.html` | Google 로그인 및 OAuth 콜백 처리 |
 
 게시판 데이터는 Supabase RLS 정책상 로그인한 사용자만 읽을 수 있습니다. 비로그인 방문자에게는 로그인 안내가 표시됩니다. 글쓰기·삭제는 `profiles.is_admin = true`인 계정만 가능합니다.
 
@@ -26,18 +26,26 @@
 
 ## 학교 정보 바꾸기
 
-`src/school.json`만 고치면 학교명, 교훈, 주소, 전화번호, 지도 위치가 모든 페이지에 반영됩니다.
+`assets/js/config.js`만 고치면 학교명, 교훈, 주소, 전화번호, 지도 위치가 모든 페이지에 반영됩니다. Supabase 주소와 publishable 키도 이 파일에 있습니다.
 
-## 개발
+## 파일 구조
 
-```bash
-npm install
-npm run dev       # http://localhost:5173
-npm run build     # dist/ 에 배포용 파일 생성
-npm run preview   # 빌드 결과 확인
+빌드 과정이 없는 정적 사이트입니다. 저장소를 그대로 올리면 동작합니다.
+
+```
+index.html, about.html, notice.html, news.html, meals.html, login.html
+assets/css/style.css        디자인
+assets/js/config.js         학교 정보, Supabase 설정
+assets/js/common.js         공통 기능 (로그인, 데이터, 머리말/꼬리말)
+assets/js/pages/*.js        페이지별 기능
+assets/js/vendor/supabase.js  supabase-js 2.117.2 (UMD)
 ```
 
-Supabase 주소와 publishable 키는 `src/config.js`에 기본값으로 들어 있습니다. 다른 프로젝트를 쓰려면 `.env.example`을 `.env`로 복사해 값을 바꾸세요.
+로컬에서 확인할 때는 파일을 더블클릭하지 말고 간단한 서버로 여세요. Google 로그인은 `http(s)://` 주소에서만 동작합니다.
+
+```bash
+python3 -m http.server 8000   # http://localhost:8000
+```
 
 ## Google 로그인 설정 (배포 전 필수)
 
@@ -46,11 +54,12 @@ Supabase 주소와 publishable 키는 `src/config.js`에 기본값으로 들어 
 2. Supabase 대시보드 → Authentication → Sign In / Providers → **Google**을 켜고 클라이언트 ID와 시크릿을 입력합니다.
 3. Supabase 대시보드 → Authentication → URL Configuration
    - Site URL: 실제 도메인 (예: `https://school.example.com`)
-   - Redirect URLs: `https://school.example.com/login.html`, 개발용 `http://localhost:5173/login.html`
+   - Redirect URLs: `https://school.example.com/**` (하위 경로에 올렸다면 그 경로까지 포함), 개발용 `http://localhost:8000/**`
 
 ## 배포
 
-정적 사이트라 어디든 올릴 수 있습니다. 빌드 명령은 `npm run build`, 출력 폴더는 `dist`입니다.
+빌드 없이 저장소 폴더를 그대로 올리면 됩니다.
 
-- **Vercel**: 저장소 연결만 하면 됩니다. 보안 헤더는 `vercel.json`에 있습니다.
-- **Netlify / Cloudflare Pages**: 보안 헤더는 `public/_headers`에 있습니다.
+- **GitHub Pages**: Settings → Pages → Branch 선택 후 저장. `.nojekyll`이 들어 있습니다.
+- **Vercel**: 저장소 연결, Framework는 Other, 빌드 명령 비움. 보안 헤더는 `vercel.json`에 있습니다.
+- **Netlify / Cloudflare Pages**: 빌드 명령 비움, 출력 폴더 `/`. 보안 헤더는 `_headers`에 있습니다.

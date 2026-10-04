@@ -3,14 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>학교소식 | %SCHOOL_NAME%</title>
-  <meta name="description" content="%SCHOOL_NAME% 학교소식과 학사일정">
+  <title>학교소식 | 새솔고등학교</title>
+  <meta name="description" content="새솔고등학교 학교소식과 학사일정">
   <meta name="theme-color" content="#16325c">
-  <meta property="og:title" content="학교소식 | %SCHOOL_NAME%">
-  <meta property="og:description" content="%SCHOOL_NAME% 학교소식과 학사일정">
+  <meta property="og:title" content="학교소식 | 새솔고등학교">
+  <meta property="og:description" content="새솔고등학교 학교소식과 학사일정">
   <meta property="og:type" content="website">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700&display=swap">
@@ -20,7 +21,7 @@
   <main id="main">
     <div class="subvisual">
       <div class="wrap">
-        <p class="crumb"><a href="/">홈</a><span aria-hidden="true">›</span>알림마당<span aria-hidden="true">›</span>학교소식</p>
+        <p class="crumb"><a href="index.html">홈</a><span aria-hidden="true">›</span>알림마당<span aria-hidden="true">›</span>학교소식</p>
         <h1>학교소식</h1>
       </div>
     </div>
@@ -30,6 +31,9 @@
     </div>
   </main>
   <footer id="site-footer" class="site-footer"></footer>
-  <script type="module" src="/src/pages/news.js"></script>
+  <script src="assets/js/vendor/supabase.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/pages/news.js"></script>
 </body>
 </html>
