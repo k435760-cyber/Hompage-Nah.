@@ -358,6 +358,11 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .tt thead th.is-today { background: var(--navy); color: #fff; }
 .tt thead th.is-today small { color: #c5cedc; }
 .tt td.is-off { background: #fafbfc; }
+.tt td.tt__event { vertical-align: middle; font-weight: 700; color: var(--navy); background: #eef2f8; letter-spacing: .02em; }
+.tt td.tt__event small { display: block; margin-top: 4px; font-size: 12px; font-weight: 500; color: var(--muted); }
+.tt td.tt__event.is-holiday { color: var(--red); background: #fbf1ef; }
+.tt__note { display: block; margin-top: 4px; padding: 1px 4px; font-size: 11px; font-weight: 500; line-height: 1.4; color: var(--navy); background: #eef2f8; border-radius: 2px; }
+.tt thead th.is-today .tt__note { color: var(--navy); background: #fff; }
 
 /* ---------- schedule ---------- */
 .cal { width: 100%; table-layout: fixed; border-collapse: collapse; border-top: 2px solid var(--ink); }
@@ -515,6 +520,9 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   .tt tbody th { font-size: 11px; }
   .tt td { height: 48px; padding: 4px 1px; font-size: 12px; line-height: 1.3; letter-spacing: -0.03em; overflow-wrap: anywhere; }
   .tt thead th { padding: 8px 2px; font-size: 14px; }
+  .tt td.tt__event { font-size: 12px; letter-spacing: -0.05em; }
+  .tt td.tt__event small { font-size: 11px; letter-spacing: -0.03em; }
+  .tt__note { font-size: 10px; letter-spacing: -0.04em; }
   .cal td { height: 56px; padding: 4px 2px; text-align: center; }
   .cal__ev { display: none; }
   .cal td.has-event .cal__day::after { content: ''; display: block; width: 5px; height: 5px; margin: 2px auto 0; border-radius: 50%; background: var(--navy); }
