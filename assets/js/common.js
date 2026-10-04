@@ -299,10 +299,10 @@
     return `<ul class="transit">${school.transit
       .map(
         (t) => `<li>
-          <p class="transit__buses"><span class="transit__kind">버스</span>${t.buses
+          <p class="transit__buses"><span class="transit__kind">${escapeHtml(t.kind || '버스')}</span>${t.buses
             .map((b) => `<b>${escapeHtml(b)}</b>`)
             .join('')}</p>
-          <p class="transit__stop"><strong>${escapeHtml(t.direction)}</strong> · ${t.stops
+          <p class="transit__stop">${t.direction ? `<strong>${escapeHtml(t.direction)}</strong> · ` : ''}${t.stops
             .map((s) => escapeHtml(s))
             .join(' 또는 ')} 정류장 하차</p>
         </li>`
