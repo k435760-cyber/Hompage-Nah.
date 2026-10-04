@@ -277,6 +277,39 @@
       </div>`;
   }
 
+  // 로고 파일이 있으면 글자 표시 대신 로고를 씁니다.
+  function applyLogo(header) {
+    if (!school.logo) return;
+    const img = new Image();
+    img.className = 'brand__logo';
+    img.alt = '';
+    img.addEventListener('load', () => {
+      header.querySelector('.brand__mark')?.replaceWith(img);
+      const icon = document.querySelector('link[rel="icon"]');
+      if (icon) {
+        icon.href = school.logo;
+        icon.removeAttribute('type');
+      }
+    });
+    img.src = school.logo;
+  }
+
+  function transitHtml() {
+    if (!school.transit?.length) return '';
+    return `<ul class="transit">${school.transit
+      .map(
+        (t) => `<li>
+          <p class="transit__buses"><span class="transit__kind">버스</span>${t.buses
+            .map((b) => `<b>${escapeHtml(b)}</b>`)
+            .join('')}</p>
+          <p class="transit__stop"><strong>${escapeHtml(t.direction)}</strong> · ${t.stops
+            .map((s) => escapeHtml(s))
+            .join(' 또는 ')} 정류장 하차</p>
+        </li>`
+      )
+      .join('')}</ul>`;
+  }
+
   async function renderAuth(slot) {
     const user = await getUser();
     if (!user) {
@@ -307,6 +340,11 @@
       const open = btn.getAttribute('aria-expanded') !== 'true';
       btn.setAttribute('aria-expanded', String(open));
       nav.classList.toggle('is-open', open);
+    });
+
+    applyLogo(header);
+    document.querySelectorAll('[data-transit]').forEach((el) => {
+      el.innerHTML = transitHtml();
     });
 
     document.querySelectorAll('[data-school]').forEach((el) => {

@@ -9,6 +9,24 @@ window.SCHOOL = {
   type: '공립',
   founded: '1994년 3월 1일',
   mapQuery: '부산광역시 영도구 중리로 64',
+
+  // 학교 로고 파일. assets/img/logo.png 를 넣으면 머리말과 브라우저 탭 아이콘에 표시됩니다.
+  // 파일이 없으면 학교 이름 첫 글자로 대신 표시합니다.
+  logo: 'assets/img/logo.png',
+
+  // 대중교통 안내
+  transit: [
+    {
+      buses: ['6', '7', '70', '71', '508'],
+      direction: '고신대 방면',
+      stops: ['동삼1동 행정복지센터', '절영아파트'],
+    },
+    {
+      buses: ['8', '30', '113', '190', '101'],
+      direction: '태종대 방면',
+      stops: ['동삼시장', '영도제일중학교'],
+    },
+  ],
 };
 
 // publishable 키는 브라우저에 노출되어도 되는 키입니다. 데이터 보호는 Supabase RLS가 담당합니다.
