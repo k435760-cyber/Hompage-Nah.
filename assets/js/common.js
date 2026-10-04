@@ -264,6 +264,8 @@
     return `
       <div class="wrap footer__inner">
         <ul class="footer__links">
+          <li><a class="footer__privacy" href="privacy.html">개인정보 처리방침</a></li>
+          <li><a href="copyright.html">저작권보호 및 이용수칙</a></li>
           <li><a href="about.html#motto">교훈</a></li>
           <li><a href="about.html#location">오시는 길</a></li>
           <li><a href="notice.html">공지사항</a></li>

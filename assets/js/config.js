@@ -10,6 +10,11 @@ window.SCHOOL = {
   founded: '1994년 3월 1일',
   mapQuery: '부산광역시 영도구 중리로 64',
 
+  // 개인정보 처리방침 (privacy.html)
+  privacyDept: '영도제일중학교 교무실',
+  privacyOfficer: '', // 개인정보 보호책임자 직위·이름. 비워 두면 표시하지 않습니다.
+  policyDate: '2026년 10월 4일',
+
   // 학교 로고 파일. assets/img/logo.png 를 넣으면 머리말과 브라우저 탭 아이콘에 표시됩니다.
   // 파일이 없으면 학교 이름 첫 글자로 대신 표시합니다.
   logo: 'assets/img/logo.png',

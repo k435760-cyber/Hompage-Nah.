@@ -11,6 +11,8 @@
 | `notice.html` | 공지사항 목록·검색·상세. 관리자는 글쓰기/삭제 가능 |
 | `news.html` | 학교소식 (분류별 필터) |
 | `meals.html` | 주간 식단표 |
+| `privacy.html` | 개인정보 처리방침 |
+| `copyright.html` | 저작권보호 및 이용수칙 |
 | `login.html` | Google 로그인 및 OAuth 콜백 처리 |
 
 게시판 데이터는 Supabase RLS 정책상 로그인한 사용자만 읽을 수 있습니다. 비로그인 방문자에게는 로그인 안내가 표시됩니다. 글쓰기·삭제는 `profiles.is_admin = true`인 계정만 가능합니다.
