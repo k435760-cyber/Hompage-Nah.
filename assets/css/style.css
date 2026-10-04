@@ -342,6 +342,9 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 /* ---------- timetable ---------- */
 .tt-pick { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; }
 .tt-wrap { overflow-x: auto; }
+.tt-week + .tt-week { margin-top: 40px; }
+.tt-week__title { margin-bottom: 10px; font-size: 17px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tt-week__title b { color: var(--ink); margin-right: 4px; }
 .tt { width: 100%; min-width: 320px; table-layout: fixed; border-collapse: collapse; border-top: 2px solid var(--ink); }
 .tt th, .tt td { border: 1px solid var(--line-soft); text-align: center; }
 .tt tr > :first-child { border-left: 0; }

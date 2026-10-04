@@ -95,8 +95,10 @@
     });
   }
 
+  // 보이는 범위: 기준 주의 월요일 ~ 다음 주 금요일
   function renderNav(days) {
-    const [mon, fri] = [days[0], days[4]];
+    const mon = days[0];
+    const fri = weekDays(offset + 1)[4];
     const end = `${mon.getFullYear() === fri.getFullYear() ? '' : `${fri.getFullYear()}년 `}${fri.getMonth() + 1}월 ${fri.getDate()}일`;
     navEl.innerHTML = `
       <button type="button" data-step="-1">이전 주</button>
@@ -105,7 +107,6 @@
       ${offset !== homeOffset ? '<button type="button" class="week-nav__home" data-home>이번 주로</button>' : ''}`;
   }
 
-  // 선택한 학년에 해당하는 그날의 일정
   // 이 일정이 선택한 학년에 해당하는지
   //  - 이름에 학년이 있으면("3학년 기말고사") 그 학년만
   //  - 공휴일·휴업일은 학교 전체
@@ -140,7 +141,7 @@
       return { d, day, kind, main, others: evs.filter((e) => e !== main) };
     });
     const hasAny = Object.keys(data).length > 0 || dayInfo.some((x) => x.main);
-    if (!hasAny) return '<p class="empty">이 주의 시간표가 아직 등록되지 않았거나 수업이 없는 주입니다.</p>';
+    if (!hasAny) return '<p class="empty">시간표가 아직 등록되지 않았거나 수업이 없는 주입니다.</p>';
 
     const maxPeriod = Math.min(
       PERIODS + 1,
@@ -182,29 +183,48 @@
     </table></div>`;
   }
 
-  async function render() {
-    const days = weekDays(offset);
-    renderNav(days);
-    const { grade, cls } = sel;
-    if (!grade || !cls) return;
+  // 한 주 분량(시간표 + 학사일정)을 불러옵니다. 이미 본 주는 다시 부르지 않습니다.
+  async function loadWeek(grade, cls, days) {
     const week = ymd(days[0]);
     const key = `${grade}-${cls}-${week}`;
-    if (!cache.has(key) || !eventCache.has(week)) {
-      ttEl.innerHTML = '<p class="loading">불러오는 중</p>';
-      try {
-        const [tt, events] = await Promise.all([
-          cache.has(key) ? cache.get(key) : fetchTimetable(grade, cls, days[0], days[4]),
-          // 학사일정을 못 불러와도 시간표는 보여 줍니다.
-          eventCache.has(week) ? eventCache.get(week) : fetchSchedule(days[0], days[4]).catch(() => null),
-        ]);
-        cache.set(key, tt);
-        if (events) eventCache.set(week, events);
-      } catch {
-        return showError(ttEl, '시간표를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
-      }
+    const [tt, events] = await Promise.all([
+      cache.has(key) ? cache.get(key) : fetchTimetable(grade, cls, days[0], days[4]),
+      // 학사일정을 못 불러와도 시간표는 보여 줍니다.
+      eventCache.has(week) ? eventCache.get(week) : fetchSchedule(days[0], days[4]).catch(() => null),
+    ]);
+    cache.set(key, tt);
+    if (events) eventCache.set(week, events);
+    return { tt, events: events || [] };
+  }
+
+  function weekTitle(days, i) {
+    const label = offset + i === 0 ? '이번 주' : offset + i === 1 ? '다음 주' : '';
+    const [mon, fri] = [days[0], days[4]];
+    return `${label ? `<b>${label}</b> ` : ''}${mon.getMonth() + 1}.${mon.getDate()} ~ ${fri.getMonth() + 1}.${fri.getDate()}`;
+  }
+
+  // 기준 주와 그다음 주, 두 주를 이어서 보여 줍니다.
+  async function render() {
+    const weeks = [weekDays(offset), weekDays(offset + 1)];
+    renderNav(weeks[0]);
+    const { grade, cls } = sel;
+    if (!grade || !cls) return;
+    const stamp = `${grade}-${cls}-${offset}`;
+    const loaded = weeks.every((days) => cache.has(`${grade}-${cls}-${ymd(days[0])}`) && eventCache.has(ymd(days[0])));
+    if (!loaded) ttEl.innerHTML = '<p class="loading">불러오는 중</p>';
+    let data;
+    try {
+      data = await Promise.all(weeks.map((days) => loadWeek(grade, cls, days)));
+    } catch {
+      return showError(ttEl, '시간표를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
     }
-    if (key !== `${sel.grade}-${sel.cls}-${ymd(weekDays(offset)[0])}`) return;
-    ttEl.innerHTML = tableHtml(days, cache.get(key), eventCache.get(week) || []);
+    if (stamp !== `${sel.grade}-${sel.cls}-${offset}`) return; // 기다리는 동안 바뀜
+    ttEl.innerHTML = weeks
+      .map((days, i) => `<section class="tt-week">
+        <h2 class="tt-week__title">${weekTitle(days, i)}</h2>
+        ${tableHtml(days, data[i].tt, data[i].events)}
+      </section>`)
+      .join('');
   }
 
   navEl.addEventListener('click', (e) => {
