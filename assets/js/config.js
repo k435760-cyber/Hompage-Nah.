@@ -15,6 +15,7 @@ window.SCHOOL = {
   logo: 'assets/img/logo.png',
 
   // 대중교통 안내. kind 를 생략하면 '버스', direction 은 생략할 수 있습니다.
+  // color: 'green' 이면 번호를 초록색으로 표시합니다 (기본은 남색).
   transit: [
     {
       buses: ['6', '7', '70', '71', '508'],
@@ -28,6 +29,7 @@ window.SCHOOL = {
     },
     {
       kind: '마을버스',
+      color: 'green',
       buses: ['영도5'],
       stops: ['동삼시장', '동삼1동 행정복지센터'],
     },

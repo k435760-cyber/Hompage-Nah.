@@ -299,7 +299,7 @@
     return `<ul class="transit">${school.transit
       .map(
         (t) => `<li>
-          <p class="transit__buses"><span class="transit__kind">${escapeHtml(t.kind || '버스')}</span>${t.buses
+          <p class="transit__buses${t.color === 'green' ? ' transit__buses--green' : ''}"><span class="transit__kind">${escapeHtml(t.kind || '버스')}</span>${t.buses
             .map((b) => `<b>${escapeHtml(b)}</b>`)
             .join('')}</p>
           <p class="transit__stop">${t.direction ? `<strong>${escapeHtml(t.direction)}</strong> · ` : ''}${t.stops

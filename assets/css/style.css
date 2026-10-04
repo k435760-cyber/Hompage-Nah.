@@ -159,6 +159,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   min-width: 34px; padding: 2px 8px; text-align: center; font-size: 14px; font-weight: 700;
   color: #fff; background: var(--navy); border-radius: 3px; font-variant-numeric: tabular-nums;
 }
+.transit__buses--green b { background: #2e8540; }
 .transit__stop { margin-top: 6px !important; font-size: 15px; }
 .transit__stop strong { color: var(--ink); }
 
