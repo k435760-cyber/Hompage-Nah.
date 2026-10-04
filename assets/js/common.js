@@ -264,7 +264,7 @@
     return `
       <div class="wrap footer__inner">
         <ul class="footer__links">
-          <li><a href="about.html#greeting">학교장 인사말</a></li>
+          <li><a href="about.html#motto">교훈</a></li>
           <li><a href="about.html#location">오시는 길</a></li>
           <li><a href="notice.html">공지사항</a></li>
         </ul>
@@ -315,7 +315,7 @@
     });
 
     // 제목의 학교명도 설정값으로 맞춥니다.
-    document.title = document.title.replace('새솔고등학교', school.name);
+    document.title = document.title.replace('영도제일중학교', school.name);
 
     const slot = header.querySelector('[data-auth]');
     renderAuth(slot);

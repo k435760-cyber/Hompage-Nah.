@@ -198,6 +198,14 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .goals h3 { font-size: 19px; margin-bottom: 6px; }
 .goals h3::before { content: '0' counter(g); display: block; font-size: 13px; color: var(--gold); font-weight: 700; margin-bottom: 4px; }
 .goals p { margin: 0; font-size: 15px; }
+.goals--2 { grid-template-columns: repeat(2, 1fr); counter-reset: none; }
+.goals--2 h3::before { content: none; }
+.goals--2 h3 span { display: block; font-size: 13px; color: var(--gold); margin-bottom: 4px; }
+
+.motto {
+  margin: 0; padding: 36px 24px; text-align: center; font-family: var(--serif); font-size: clamp(24px, 3.4vw, 34px);
+  color: var(--navy); border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line); letter-spacing: .02em;
+}
 
 .history { width: 100%; border-collapse: collapse; border-top: 2px solid var(--ink); }
 .history th, .history td { padding: 14px 16px; border-bottom: 1px solid var(--line); text-align: left; }

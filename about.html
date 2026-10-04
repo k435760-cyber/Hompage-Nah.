@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>학교소개 | 새솔고등학교</title>
-  <meta name="description" content="새솔고등학교 학교장 인사말, 교육목표, 연혁, 오시는 길">
+  <title>학교소개 | 영도제일중학교</title>
+  <meta name="description" content="영도제일중학교 교훈, 학교 상징, 학교 개요, 오시는 길">
   <meta name="theme-color" content="#16325c">
-  <meta property="og:title" content="학교소개 | 새솔고등학교">
-  <meta property="og:description" content="새솔고등학교 학교장 인사말, 교육목표, 연혁, 오시는 길">
+  <meta property="og:title" content="학교소개 | 영도제일중학교">
+  <meta property="og:description" content="영도제일중학교 교훈, 학교 상징, 학교 개요, 오시는 길">
   <meta property="og:type" content="website">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -27,44 +27,30 @@
     </div>
     <div class="wrap sub">
       <nav class="tabs" aria-label="학교소개 메뉴">
-        <a href="#greeting">인사말</a><a href="#goals">교육목표</a><a href="#history">연혁</a><a href="#location">오시는 길</a>
+        <a href="#motto">교훈</a><a href="#symbols">학교 상징</a><a href="#overview">학교 개요</a><a href="#location">오시는 길</a>
       </nav>
 
-      <section id="greeting" class="sec">
-        <h2 class="sec__title">학교장 인사말</h2>
-        <div class="greeting">
-          <p class="greeting__quote">“좋은 질문 하나가 한 학기를 바꿉니다.”</p>
-          <p>안녕하십니까. 저희 학교 홈페이지를 찾아 주신 여러분께 감사드립니다.</p>
-          <p>우리 학교는 정답을 빨리 찾는 것보다 질문을 오래 붙드는 힘을 더 귀하게 여깁니다. 수업 시간에 손을 드는 일, 친구와 생각이 부딪히는 일, 실험이 틀어져 처음부터 다시 하는 일이 모두 배움이라고 믿습니다.</p>
-          <p>선생님들은 학생 곁에서 기다리고, 학교는 그 기다림이 가능하도록 시간과 공간을 마련하겠습니다. 학부모님과 지역 사회의 따뜻한 관심 부탁드립니다.</p>
-          <p class="greeting__sign">교장 <strong data-school="principal"></strong></p>
-        </div>
+      <section id="motto" class="sec">
+        <h2 class="sec__title">교훈</h2>
+        <p class="motto" data-school="motto"></p>
       </section>
 
-      <section id="goals" class="sec">
-        <h2 class="sec__title">교육목표</h2>
-        <p class="sec__lead">교훈 <strong data-school="motto"></strong></p>
-        <ol class="goals">
-          <li><h3>자기주도</h3><p>배울 내용을 스스로 정하고, 계획하고, 돌아볼 줄 아는 학생</p></li>
-          <li><h3>협력</h3><p>다른 생각을 존중하며 함께 문제를 풀어 가는 학생</p></li>
-          <li><h3>탐구</h3><p>궁금한 것을 끝까지 따라가 근거로 말하는 학생</p></li>
-          <li><h3>배려</h3><p>공동체의 규칙을 지키고 약한 사람의 자리를 살피는 학생</p></li>
-        </ol>
+      <section id="symbols" class="sec">
+        <h2 class="sec__title">학교 상징</h2>
+        <ul class="goals goals--2">
+          <li><h3><span>교목</span>소나무</h3><p>인내, 끈기와 절개, 높푸른 이상</p></li>
+          <li><h3><span>교화</span>철쭉</h3><p>은근, 끈기, 풍요</p></li>
+        </ul>
       </section>
 
-      <section id="history" class="sec">
-        <h2 class="sec__title">연혁</h2>
-        <table class="history">
-          <caption class="sr-only">학교 연혁</caption>
-          <tbody>
-            <tr><th scope="row" data-school="founded"></th><td>학교 설립 인가, 제1회 입학식</td></tr>
-            <tr><th scope="row">1990</th><td>제1회 졸업식</td></tr>
-            <tr><th scope="row">2004</th><td>본관 증축 및 도서관 개관</td></tr>
-            <tr><th scope="row">2015</th><td>과학중점 과정 운영 시작</td></tr>
-            <tr><th scope="row">2021</th><td>강당 겸 체육관 준공</td></tr>
-            <tr><th scope="row">2025</th><td>고교학점제 전면 시행</td></tr>
-          </tbody>
-        </table>
+      <section id="overview" class="sec">
+        <h2 class="sec__title">학교 개요</h2>
+        <dl class="info-list">
+          <div><dt>학교명</dt><dd data-school="name"></dd></div>
+          <div><dt>설립</dt><dd data-school="type"></dd></div>
+          <div><dt>개교</dt><dd data-school="founded"></dd></div>
+          <div><dt>교훈</dt><dd data-school="motto"></dd></div>
+        </dl>
       </section>
 
       <section id="location" class="sec">
