@@ -15,6 +15,8 @@
 | `copyright.html` | 저작권보호 및 이용수칙 |
 | `login.html` | Google 로그인 및 OAuth 콜백 처리 |
 
+급식은 나이스 교육정보 개방 포털(open.neis.go.kr) 급식식단정보 API에서 바로 가져오며, 로그인 없이 누구나 볼 수 있습니다. 인증키와 학교 코드(부산 C10, 영도제일중 7171202)는 `assets/js/config.js`의 `neis`에 있습니다.
+
 게시판 데이터는 Supabase RLS 정책상 로그인한 사용자만 읽을 수 있습니다. 비로그인 방문자에게는 로그인 안내가 표시됩니다. 글쓰기·삭제는 `profiles.is_admin = true`인 계정만 가능합니다.
 
 ## 사용하는 Supabase 테이블
@@ -23,7 +25,6 @@
 
 - `notices` — 공지사항 (`priority`가 `general`이 아니면 "중요" 표시)
 - `school_news` — 학교소식 (`category`, `pinned`, `event_date`)
-- `meals` — 급식. `title`에 날짜(`2026-10-05` 또는 `10월 5일`)를 넣고, `items`에 메뉴 배열 또는 `{ "중식": [...], "석식": [...] }` 형태로 넣으면 됩니다. `"닭갈비(5.6.13.)"`처럼 쓰면 알레르기 번호가 작게 표시됩니다.
 - `profiles` — 이름, 관리자 여부
 
 ## 학교 정보 바꾸기

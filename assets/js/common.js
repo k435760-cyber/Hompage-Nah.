@@ -164,58 +164,61 @@
     return data;
   }
 
-  // items 컬럼은 형식이 정해져 있지 않아 배열/객체/문자열을 모두 받아줍니다.
-  function toDishes(value) {
-    if (value == null) return [];
-    if (Array.isArray(value)) {
-      return value.flatMap((v) => (typeof v === 'string' ? [v] : v?.name ? [String(v.name)] : toDishes(v)));
-    }
-    if (typeof value === 'string') return value.split(/\n|,|<br\s*\/?>/i).map((s) => s.trim()).filter(Boolean);
-    if (typeof value === 'object') return Object.values(value).flatMap(toDishes);
-    return [String(value)];
-  }
+  // ---------- 급식 (NEIS 교육정보 개방 포털) ----------
+  const ymd = (d) => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+  const MEAL_ORDER = { 조식: 1, 중식: 2, 석식: 3 };
 
-  function toSections(items) {
-    if (items && typeof items === 'object' && !Array.isArray(items)) {
-      const sections = Object.entries(items)
-        .map(([label, v]) => ({ label, dishes: toDishes(v) }))
-        .filter((s) => s.dishes.length);
-      if (sections.length) return sections;
-    }
-    return [{ label: '', dishes: toDishes(items) }];
-  }
-
-  function parseMealDate(title, createdAt) {
-    const base = new Date(createdAt);
-    let m = title.match(/(\d{4})[-./년\s]+(\d{1,2})[-./월\s]+(\d{1,2})/);
-    if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
-    m = title.match(/(\d{1,2})\s*[월/.]\s*(\d{1,2})/);
-    if (m) return new Date(base.getFullYear(), +m[1] - 1, +m[2]);
-    return new Date(base.getFullYear(), base.getMonth(), base.getDate());
-  }
-
-  // "닭갈비(5.6.13.)" → 이름과 알레르기 번호를 분리
+  // "떡볶이 (1.5.6.13)" → 이름과 알레르기 번호를 분리
   function splitAllergy(dish) {
-    const m = dish.match(/^(.*?)\s*\(?([\d.]+)\)?\s*$/);
-    if (m && /\d\./.test(m[2])) return { name: m[1].trim(), allergy: m[2].replace(/\.$/, '') };
-    return { name: dish, allergy: '' };
+    const m = dish.match(/^(.*?)\s*\(([\d.\s]+)\)\s*$/);
+    if (m) return { name: m[1].trim(), allergy: m[2].replace(/\s/g, '').replace(/\.$/, '') };
+    return { name: dish.trim(), allergy: '' };
   }
 
-  async function fetchMeals(limit = 30) {
-    const { data, error } = await sb
-      .from('meals')
-      .select('id, title, items, created_at')
-      .order('created_at', { ascending: false })
-      .limit(limit);
-    if (error) throw error;
-    return data
-      .map((row) => ({
-        id: row.id,
-        title: row.title || '',
-        date: parseMealDate(row.title || '', row.created_at),
-        sections: toSections(row.items),
-      }))
-      .sort((a, b) => b.date - a.date);
+  // from~to 기간의 식단을 날짜별로 묶어 돌려줍니다.
+  async function fetchMeals(from, to) {
+    const neis = school.neis;
+    const url = new URL('https://open.neis.go.kr/hub/mealServiceDietInfo');
+    url.search = new URLSearchParams({
+      KEY: neis.key,
+      Type: 'json',
+      pIndex: '1',
+      pSize: '100',
+      ATPT_OFCDC_SC_CODE: neis.officeCode,
+      SD_SCHUL_CODE: neis.schoolCode,
+      MLSV_FROM_YMD: ymd(from),
+      MLSV_TO_YMD: ymd(to),
+    }).toString();
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`NEIS ${res.status}`);
+    const json = await res.json();
+
+    // 해당 기간에 급식이 없으면 { RESULT: { CODE: 'INFO-200' } } 형태로 옵니다.
+    if (!json.mealServiceDietInfo) {
+      if (json.RESULT?.CODE === 'INFO-200') return [];
+      throw new Error(json.RESULT?.MESSAGE || 'NEIS error');
+    }
+    const rows = json.mealServiceDietInfo[1]?.row ?? [];
+
+    const byDate = new Map();
+    rows.forEach((r) => {
+      const key = r.MLSV_YMD;
+      if (!byDate.has(key)) {
+        byDate.set(key, {
+          date: new Date(+key.slice(0, 4), +key.slice(4, 6) - 1, +key.slice(6, 8)),
+          sections: [],
+        });
+      }
+      byDate.get(key).sections.push({
+        label: r.MMEAL_SC_NM || '',
+        cal: r.CAL_INFO || '',
+        dishes: String(r.DDISH_NM || '').split(/<br\s*\/?>/i).map((d) => d.trim()).filter(Boolean),
+      });
+    });
+    return [...byDate.values()]
+      .map((m) => ({ ...m, sections: m.sections.sort((x, y) => (MEAL_ORDER[x.label] || 9) - (MEAL_ORDER[y.label] || 9)) }))
+      .sort((x, y) => x.date - y.date);
   }
 
   function sameDay(a, b) {

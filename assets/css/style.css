@@ -319,7 +319,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .day__head span { color: var(--muted); font-weight: 500; margin-left: 2px; }
 .day__head em { display: inline-block; margin-left: 6px; font-style: normal; font-size: 11px; padding: 1px 6px; color: #fff; background: var(--navy); border-radius: 2px; vertical-align: 2px; }
 .day.is-today .day__head { background: #e8edf5; }
-.day__label { margin: 12px 14px 0; font-size: 13px; font-weight: 600; color: var(--navy); }
+.day__label { display: flex; justify-content: space-between; margin: 12px 14px 0; font-size: 13px; font-weight: 600; color: var(--navy); }
+.day__label span { font-weight: 400; color: var(--muted); }
 .day__menu { padding: 8px 14px 16px; }
 .day__menu li { font-size: 15px; line-height: 1.8; }
 .day__menu small { font-size: 11px; color: var(--muted); }

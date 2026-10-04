@@ -5,7 +5,7 @@ window.SCHOOL = {
   motto: '건강하게, 참되게, 슬기롭게',
   address: '(49106) 부산광역시 영도구 중리로 64',
   tel: '051-404-5493',
-  fax: '051-404-0408',
+  fax: '051-404-5492',
   type: '공립',
   founded: '1994년 3월 1일',
   mapQuery: '부산광역시 영도구 중리로 64',
@@ -14,6 +14,13 @@ window.SCHOOL = {
   privacyDept: '영도제일중학교 교무실',
   privacyOfficer: '', // 개인정보 보호책임자 직위·이름. 비워 두면 표시하지 않습니다.
   policyDate: '2026년 10월 4일',
+
+  // 급식: NEIS 교육정보 개방 포털(open.neis.go.kr) 인증키와 학교 코드
+  neis: {
+    key: '7b4272487fba464e9b3e8a20d9ad50bf',
+    officeCode: 'C10', // 부산광역시교육청
+    schoolCode: '7171202', // 영도제일중학교
+  },
 
   // 학교 로고 파일. assets/img/logo.png 를 넣으면 머리말과 브라우저 탭 아이콘에 표시됩니다.
   // 파일이 없으면 학교 이름 첫 글자로 대신 표시합니다.

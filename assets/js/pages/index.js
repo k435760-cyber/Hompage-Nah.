@@ -13,12 +13,27 @@
   const newsEl = document.querySelector('[data-home-news]');
   const mealEl = document.querySelector('[data-today-meal]');
 
+  // 급식은 공개 정보라 로그인 없이 보여 줍니다.
+  function loadMeal() {
+    fetchMeals(now, now)
+      .then((meals) => {
+        const today = meals.find((m) => sameDay(m.date, now));
+        if (!today) return (mealEl.innerHTML = '<p class="today__empty">오늘은 급식이 없습니다.</p>');
+        mealEl.innerHTML = today.sections
+          .map(
+            (s) => `${today.sections.length > 1 ? `<p class="today__label">${escapeHtml(s.label)}</p>` : ''}
+            <ul class="today__menu">${s.dishes.map((d) => `<li>${escapeHtml(splitAllergy(d).name)}</li>`).join('')}</ul>`
+          )
+          .join('');
+      })
+      .catch(() => (mealEl.innerHTML = '<p class="today__empty">식단을 불러오지 못했습니다.</p>'));
+  }
+
   async function load() {
     const user = await getUser();
     if (!user) {
       loginRequired(noticeEl);
       loginRequired(newsEl);
-      mealEl.innerHTML = '<p class="today__empty">로그인하면 오늘 식단을 볼 수 있습니다.</p>';
       return;
     }
 
@@ -57,19 +72,9 @@
       })
       .catch(() => showError(newsEl));
 
-    fetchMeals(10)
-      .then((meals) => {
-        const today = meals.find((m) => sameDay(m.date, now));
-        if (!today) return (mealEl.innerHTML = '<p class="today__empty">오늘은 급식이 없습니다.</p>');
-        mealEl.innerHTML = today.sections
-          .map(
-            (s) => `${s.label ? `<p class="today__label">${escapeHtml(s.label)}</p>` : ''}
-            <ul class="today__menu">${s.dishes.map((d) => `<li>${escapeHtml(splitAllergy(d).name)}</li>`).join('')}</ul>`
-          )
-          .join('');
-      })
-      .catch(() => (mealEl.innerHTML = '<p class="today__empty">식단을 불러오지 못했습니다.</p>'));
+
   }
 
+  loadMeal();
   load();
 })();
