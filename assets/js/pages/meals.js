@@ -10,7 +10,8 @@
   const today = new Date();
   const cache = new Map(); // 주 시작일 → 식단
   // 주말에는 다가오는 주를 먼저 보여 줍니다.
-  let offset = today.getDay() === 0 || today.getDay() === 6 ? 1 : 0;
+  const homeOffset = today.getDay() === 0 || today.getDay() === 6 ? 1 : 0;
+  let offset = homeOffset;
 
   function weekDays(weeks) {
     const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -46,10 +47,17 @@
   async function render() {
     const days = weekDays(offset);
     const [mon, fri] = [days[0], days[4]];
+    // 연도가 바뀌는 주(12월 말~1월 초)는 끝 날짜에도 연도를 붙입니다.
+    const sameYear = mon.getFullYear() === fri.getFullYear();
+    const end = `${sameYear ? '' : `${fri.getFullYear()}년 `}${fri.getMonth() + 1}월 ${fri.getDate()}일`;
     navEl.innerHTML = `
       <button type="button" data-step="-1">이전 주</button>
-      <p><strong>${mon.getMonth() + 1}월 ${mon.getDate()}일 ~ ${fri.getMonth() + 1}월 ${fri.getDate()}일</strong></p>
-      <button type="button" data-step="1">다음 주</button>`;
+      <p>
+        <span class="week-nav__year">${mon.getFullYear()}년</span>
+        <strong>${mon.getMonth() + 1}월 ${mon.getDate()}일 ~ ${end}</strong>
+      </p>
+      <button type="button" data-step="1">다음 주</button>
+      ${offset !== homeOffset ? '<button type="button" class="week-nav__home" data-home>이번 주로</button>' : ''}`;
 
     const key = mon.toDateString();
     if (!cache.has(key)) {
@@ -70,6 +78,11 @@
   }
 
   navEl.addEventListener('click', (e) => {
+    if (e.target.closest('[data-home]')) {
+      offset = homeOffset;
+      render();
+      return;
+    }
     const btn = e.target.closest('[data-step]');
     if (!btn) return;
     offset += Number(btn.dataset.step);

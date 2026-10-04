@@ -308,8 +308,11 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .news__text p { margin: 0 0 .6em; }
 
 /* ---------- meals ---------- */
-.week-nav { display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 24px; }
-.week-nav p { margin: 0; font-size: 18px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.week-nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 24px; margin-bottom: 24px; }
+.week-nav p { margin: 0; font-size: 18px; color: var(--ink); font-variant-numeric: tabular-nums; text-align: center; line-height: 1.35; }
+.week-nav__year { display: block; font-size: 13px; font-weight: 600; color: var(--navy); }
+.week-nav .week-nav__home { flex-basis: 100%; max-width: 120px; background: var(--navy); border-color: var(--navy); color: #fff; }
+.week-nav .week-nav__home:hover { background: var(--navy-dark); }
 .week-nav button { height: 36px; padding: 0 14px; background: #fff; border: 1px solid var(--line); font-size: 14px; }
 .week-nav button:hover { background: var(--bg-soft); }
 
