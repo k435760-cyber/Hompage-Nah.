@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const { isAdmin } = window.App;
+  const { isAdmin, confirmDialog, alertDialog } = window.App;
   const { mountLayout, loginRequired, showError, getUser, getProfile, displayName, sb, fetchNotices, fetchNotice, fetchAdjacentNotices, escapeHtml, formatDate, isRecent, textToHtml, safeImageUrl } = window.App;
 
   mountLayout('notice');
@@ -103,9 +103,15 @@
       </div>`;
 
     root.querySelector('[data-delete]')?.addEventListener('click', async () => {
-      if (!window.confirm('이 공지를 삭제할까요? 삭제한 글은 되돌릴 수 없습니다.')) return;
+      const ok = await confirmDialog({
+        title: '공지 삭제',
+        message: '이 공지를 삭제할까요? 삭제한 글은 되돌릴 수 없습니다.',
+        confirmText: '삭제',
+        danger: true,
+      });
+      if (!ok) return;
       const { error } = await sb.from('notices').delete().eq('id', n.id);
-      if (error) return window.alert('삭제하지 못했습니다. 권한을 확인해 주세요.');
+      if (error) return alertDialog({ title: '삭제 실패', message: '삭제하지 못했습니다. 권한을 확인해 주세요.' });
       window.location.replace('notice.html');
     });
   }

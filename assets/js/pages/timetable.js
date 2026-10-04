@@ -1,14 +1,15 @@
 (function () {
   'use strict';
 
+  const { openDialog } = window.App;
   const { mountLayout, showError, fetchClasses, fetchTimetable, fetchSchedule, schoolYear, ymd, sameDay, escapeHtml, WEEKDAYS } = window.App;
 
   mountLayout('timetable');
 
   const STORE_KEY = 'yd.timetable.class';
   const PERIODS = 7;
-  const gradeEl = document.querySelector('[data-grade]');
-  const classEl = document.querySelector('[data-class]');
+  const pickBtn = document.querySelector('[data-class-pick]');
+  const pickLabel = document.querySelector('[data-class-label]');
   const navEl = document.querySelector('[data-week-nav]');
   const ttEl = document.querySelector('[data-timetable]');
 
@@ -16,6 +17,7 @@
   const homeOffset = today.getDay() === 0 || today.getDay() === 6 ? 1 : 0;
   let offset = homeOffset;
   let classes = {};
+  let sel = { grade: '', cls: '' }; // 지금 보고 있는 학년·반
   const cache = new Map(); // 반+주 → 시간표
   const eventCache = new Map(); // 주 → 학사일정
 
@@ -46,10 +48,45 @@
     return Array.from({ length: 5 }, (_, i) => new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i));
   }
 
-  function fillClassOptions(selected) {
-    const list = classes[gradeEl.value] || [];
-    classEl.innerHTML = list.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}반</option>`).join('');
-    if (selected && list.includes(selected)) classEl.value = selected;
+  function setSelection(grade, cls) {
+    sel = { grade, cls };
+    pickLabel.textContent = `${grade}학년 ${cls}반`;
+    store.set(sel);
+  }
+
+  // 학년을 고르고 반을 누르면 바로 닫히는 선택 창
+  function openClassPicker() {
+    const grades = Object.keys(classes).sort();
+    let grade = sel.grade;
+    const classGrid = (g) => (classes[g] || [])
+      .map((c) => {
+        const on = g === sel.grade && c === sel.cls;
+        return `<button type="button" class="pick__opt" data-cls="${escapeHtml(c)}" aria-selected="${on}"${on ? ' autofocus' : ''}>${escapeHtml(c)}반</button>`;
+      })
+      .join('');
+
+    return openDialog({
+      title: '학년·반 선택',
+      body: `
+        <div class="seg" role="tablist" aria-label="학년">${grades
+          .map((g) => `<button type="button" role="tab" data-grade="${escapeHtml(g)}" aria-selected="${g === grade}">${escapeHtml(g)}학년</button>`)
+          .join('')}</div>
+        <div class="pick pick--grid" role="listbox" aria-label="반" data-classes>${classGrid(grade)}</div>`,
+      onMount: (dlg, close) => {
+        const list = dlg.querySelector('[data-classes]');
+        dlg.querySelector('.seg').addEventListener('click', (e) => {
+          const b = e.target.closest('[data-grade]');
+          if (!b) return;
+          grade = b.dataset.grade;
+          dlg.querySelectorAll('[data-grade]').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+          list.innerHTML = classGrid(grade);
+        });
+        list.addEventListener('click', (e) => {
+          const b = e.target.closest('[data-cls]');
+          if (b) close({ grade, cls: b.dataset.cls });
+        });
+      },
+    });
   }
 
   function renderNav(days) {
@@ -64,7 +101,7 @@
 
   // 선택한 학년에 해당하는 그날의 일정
   function eventsOn(events, d) {
-    const g = Number(gradeEl.value);
+    const g = Number(sel.grade);
     return events.filter((e) => sameDay(e.date, d) && (!e.grades.length || e.grades.includes(g)));
   }
 
@@ -106,7 +143,7 @@
       rows.push(`<tr><th scope="row">${p}교시</th>${cells.join('')}</tr>`);
     }
     return `<div class="tt-wrap"><table class="tt">
-      <caption class="sr-only">${gradeEl.value}학년 ${classEl.value}반 시간표</caption>
+      <caption class="sr-only">${sel.grade}학년 ${sel.cls}반 시간표</caption>
       <thead><tr><th scope="col"><span class="sr-only">교시</span></th>${head}</tr></thead>
       <tbody>${rows.join('')}</tbody>
     </table></div>`;
@@ -115,8 +152,7 @@
   async function render() {
     const days = weekDays(offset);
     renderNav(days);
-    const grade = gradeEl.value;
-    const cls = classEl.value;
+    const { grade, cls } = sel;
     if (!grade || !cls) return;
     const week = ymd(days[0]);
     const key = `${grade}-${cls}-${week}`;
@@ -134,7 +170,7 @@
         return showError(ttEl, '시간표를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
       }
     }
-    if (key !== `${gradeEl.value}-${classEl.value}-${ymd(weekDays(offset)[0])}`) return;
+    if (key !== `${sel.grade}-${sel.cls}-${ymd(weekDays(offset)[0])}`) return;
     ttEl.innerHTML = tableHtml(days, cache.get(key), eventCache.get(week) || []);
   }
 
@@ -148,13 +184,10 @@
     render();
   });
 
-  gradeEl.addEventListener('change', () => {
-    fillClassOptions();
-    store.set({ grade: gradeEl.value, cls: classEl.value });
-    render();
-  });
-  classEl.addEventListener('change', () => {
-    store.set({ grade: gradeEl.value, cls: classEl.value });
+  pickBtn.addEventListener('click', async () => {
+    const picked = await openClassPicker();
+    if (!picked) return;
+    setSelection(picked.grade, picked.cls);
     render();
   });
 
@@ -169,10 +202,12 @@
       ttEl.innerHTML = '<p class="empty">학급 정보가 없습니다.</p>';
       return;
     }
-    gradeEl.innerHTML = grades.map((g) => `<option value="${escapeHtml(g)}">${escapeHtml(g)}학년</option>`).join('');
     const saved = store.get();
-    if (saved && grades.includes(saved.grade)) gradeEl.value = saved.grade;
-    fillClassOptions(saved?.cls);
+    const grade = saved && grades.includes(saved.grade) ? saved.grade : grades[0];
+    const list = classes[grade];
+    const cls = saved && saved.grade === grade && list.includes(saved.cls) ? saved.cls : list[0];
+    setSelection(grade, cls);
+    pickBtn.disabled = false;
     render();
   }
 

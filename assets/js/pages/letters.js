@@ -4,7 +4,7 @@
   const {
     mountLayout, showError, getUser, getProfile, displayName, isAdmin, sb,
     LETTER_BUCKET, fetchLetters, fetchLetter, letterFileUrl, formatSize,
-    escapeHtml, formatDate, isRecent, textToHtml,
+    escapeHtml, formatDate, isRecent, textToHtml, confirmDialog, alertDialog, pickDialog,
   } = window.App;
 
   mountLayout('letters');
@@ -111,9 +111,15 @@
       </div>`;
 
     root.querySelector('[data-delete]')?.addEventListener('click', async () => {
-      if (!window.confirm('이 가정통신문을 삭제할까요? 첨부파일도 함께 지워지며 되돌릴 수 없습니다.')) return;
+      const ok = await confirmDialog({
+        title: '가정통신문 삭제',
+        message: '이 가정통신문을 삭제할까요? 첨부파일도 함께 지워지며 되돌릴 수 없습니다.',
+        confirmText: '삭제',
+        danger: true,
+      });
+      if (!ok) return;
       const { error } = await sb.from('home_letters').delete().eq('id', n.id);
-      if (error) return window.alert('삭제하지 못했습니다. 권한을 확인해 주세요.');
+      if (error) return alertDialog({ title: '삭제 실패', message: '삭제하지 못했습니다. 권한을 확인해 주세요.' });
       if (files.length) await sb.storage.from(LETTER_BUCKET).remove(files.map((f) => f.path));
       window.location.replace('letters.html');
     });
@@ -127,16 +133,25 @@
           <input id="w-title" name="title" maxlength="200" required>
         </div>
         <div class="field">
-          <label for="w-target">대상</label>
-          <select id="w-target" name="target">${TARGETS.map((t) => `<option>${t}</option>`).join('')}</select>
+          <span class="field__label" id="w-target-label">대상</span>
+          <input type="hidden" name="target" value="${TARGETS[0]}">
+          <button type="button" class="picker-btn" data-target-pick aria-haspopup="dialog" aria-labelledby="w-target-label w-target-value">
+            <span id="w-target-value">${TARGETS[0]}</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
         </div>
         <div class="field">
           <label for="w-content">내용</label>
           <textarea id="w-content" name="content" rows="10"></textarea>
         </div>
         <div class="field">
-          <label for="w-files">첨부파일</label>
-          <input id="w-files" name="files" type="file" multiple accept="${ALLOWED_EXT.map((e) => `.${e}`).join(',')}">
+          <span class="field__label">첨부파일</span>
+          <input id="w-files" class="sr-only" name="files" type="file" multiple accept="${ALLOWED_EXT.map((e) => `.${e}`).join(',')}">
+          <label for="w-files" class="picker-btn picker-btn--file">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21 11-8.5 8.5a5 5 0 0 1-7-7L14 4a3.5 3.5 0 0 1 5 5l-8.5 8.5a2 2 0 0 1-3-3L15 7"/></svg>
+            파일 선택
+          </label>
+          <ul class="file-list" data-file-list></ul>
           <p class="field__help">PDF, 한글(HWP·HWPX), 워드, 이미지 · 파일당 20MB, 최대 ${MAX_FILES}개</p>
         </div>
         <p class="alert" role="alert" hidden></p>
@@ -148,6 +163,23 @@
 
     const form = root.querySelector('form');
     const alertEl = form.querySelector('.alert');
+
+    form.files.addEventListener('change', () => {
+      form.querySelector('[data-file-list]').innerHTML = [...form.files.files]
+        .map((f) => `<li>${escapeHtml(f.name)} <small>${formatSize(f.size)}</small></li>`)
+        .join('');
+    });
+
+    form.querySelector('[data-target-pick]').addEventListener('click', async () => {
+      const v = await pickDialog({
+        title: '대상 선택',
+        options: TARGETS.map((t) => ({ value: t, label: t })),
+        value: form.target.value,
+      });
+      if (!v) return;
+      form.target.value = v;
+      form.querySelector('#w-target-value').textContent = v;
+    });
     const fail = (msg) => {
       alertEl.hidden = false;
       alertEl.textContent = msg;

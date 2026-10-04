@@ -379,6 +379,90 @@
     return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
   }
 
+  // ---------- 모달 ----------
+  // 브라우저 기본 창(alert/confirm/select) 대신 쓰는 사이트 공통 모달입니다.
+  // <dialog> 를 써서 포커스 가두기·Esc 닫기·배경 비활성화를 브라우저에 맡깁니다.
+  function openDialog({ title, body, className = '', onMount }) {
+    return new Promise((resolve) => {
+      const dlg = document.createElement('dialog');
+      dlg.className = `modal ${className}`.trim();
+      dlg.setAttribute('aria-labelledby', 'modal-title');
+      dlg.innerHTML = `
+        <div class="modal__panel">
+          <div class="modal__head">
+            <h2 id="modal-title">${escapeHtml(title)}</h2>
+            <button type="button" class="modal__x" data-close aria-label="닫기">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
+          </div>
+          <div class="modal__body">${body}</div>
+        </div>`;
+
+      let result;
+      const opener = document.activeElement;
+      const close = (value) => {
+        result = value;
+        dlg.close();
+      };
+      dlg.addEventListener('close', () => {
+        dlg.remove();
+        document.documentElement.classList.remove('modal-open');
+        if (opener && opener.focus) opener.focus();
+        resolve(result);
+      });
+      // 바깥(어두운 배경)을 누르면 닫기
+      dlg.addEventListener('click', (e) => {
+        if (e.target === dlg) close();
+        if (e.target.closest('[data-close]')) close();
+      });
+
+      document.body.append(dlg);
+      document.documentElement.classList.add('modal-open');
+      if (onMount) onMount(dlg, close);
+      dlg.showModal();
+      (dlg.querySelector('[autofocus]') || dlg.querySelector('.modal__body button, .modal__body input'))?.focus();
+    });
+  }
+
+  function confirmDialog({ title = '확인', message, confirmText = '확인', cancelText = '취소', danger = false }) {
+    return openDialog({
+      title,
+      className: 'modal--small',
+      body: `
+        <p class="modal__msg">${escapeHtml(message)}</p>
+        <div class="modal__actions">
+          <button type="button" class="btn btn--ghost" data-close>${escapeHtml(cancelText)}</button>
+          <button type="button" class="btn${danger ? ' btn--solid-danger' : ''}" data-ok autofocus>${escapeHtml(confirmText)}</button>
+        </div>`,
+      onMount: (dlg, close) => dlg.querySelector('[data-ok]').addEventListener('click', () => close(true)),
+    }).then((v) => v === true);
+  }
+
+  function alertDialog({ title = '알림', message, buttonText = '확인' }) {
+    return openDialog({
+      title,
+      className: 'modal--small',
+      body: `
+        <p class="modal__msg">${escapeHtml(message)}</p>
+        <div class="modal__actions"><button type="button" class="btn" data-close autofocus>${escapeHtml(buttonText)}</button></div>`,
+    });
+  }
+
+  // 목록에서 하나 고르기. options: [{ value, label }]
+  function pickDialog({ title, options, value }) {
+    return openDialog({
+      title,
+      body: `<div class="pick" role="listbox" aria-label="${escapeHtml(title)}">${options
+        .map((o) => `<button type="button" role="option" class="pick__opt" data-value="${escapeHtml(o.value)}" aria-selected="${String(o.value) === String(value)}"${String(o.value) === String(value) ? ' autofocus' : ''}>${escapeHtml(o.label)}</button>`)
+        .join('')}</div>`,
+      onMount: (dlg, close) =>
+        dlg.querySelector('.pick').addEventListener('click', (e) => {
+          const b = e.target.closest('[data-value]');
+          if (b) close(b.dataset.value);
+        }),
+    });
+  }
+
   // ---------- 레이아웃 ----------
   const NAV = [
     { id: 'about', href: 'about.html', label: '학교소개' },
@@ -546,5 +630,6 @@
     fetchSchedule, groupEvents, gradeLabel, isAdmin, ymd, schoolYear,
     LETTER_BUCKET, fetchLetters, fetchLetter, letterFileUrl, formatSize, fetchClasses, fetchTimetable,
     mountLayout, loginRequired, showError, googleIcon,
+    openDialog, confirmDialog, alertDialog, pickDialog,
   };
 })();
