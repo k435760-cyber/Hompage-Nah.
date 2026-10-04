@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>로그인 | %SCHOOL_NAME%</title>
+  <meta name="description" content="%SCHOOL_NAME% 구성원 로그인">
+  <meta name="theme-color" content="#16325c">
+  <meta property="og:title" content="로그인 | %SCHOOL_NAME%">
+  <meta property="og:description" content="%SCHOOL_NAME% 구성원 로그인">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700&display=swap">
+</head>
+<body data-page="login">
+  <header id="site-header" class="site-header"></header>
+  <main id="main">
+    <div class="wrap login">
+      <div class="login__box">
+        <h1>로그인</h1>
+        <p class="login__desc">학교 구성원은 Google 계정으로 로그인한 뒤<br>공지사항과 급식 정보를 볼 수 있습니다.</p>
+        <div data-login></div>
+        <ul class="login__help">
+          <li>처음 로그인하면 계정이 자동으로 만들어집니다.</li>
+          <li>공용 PC에서는 사용 후 반드시 로그아웃해 주세요.</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+  <footer id="site-footer" class="site-footer"></footer>
+  <script type="module" src="/src/pages/login.js"></script>
+</body>
+</html>

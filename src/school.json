@@ -1,0 +1,11 @@
+{
+  "name": "새솔고등학교",
+  "nameEn": "Saesol High School",
+  "motto": "스스로 묻고, 함께 답하는 사람",
+  "address": "(00000) 서울특별시 ○○구 ○○로 123",
+  "tel": "02-000-0000",
+  "fax": "02-000-0001",
+  "founded": "1987",
+  "principal": "김○○",
+  "mapQuery": "서울특별시청"
+}
