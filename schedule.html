@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>학사일정 | 영도제일중학교</title>
+  <meta name="description" content="영도제일중학교 월별 학사일정">
+  <meta name="theme-color" content="#16325c">
+  <meta property="og:title" content="학사일정 | 영도제일중학교">
+  <meta property="og:description" content="영도제일중학교 월별 학사일정">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/img/logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="assets/img/logo.png">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@600;700&display=swap">
+</head>
+<body data-page="schedule">
+  <header id="site-header" class="site-header"></header>
+  <main id="main">
+    <div class="subvisual">
+      <div class="wrap">
+        <p class="crumb"><a href="index.html">홈</a><span aria-hidden="true">›</span>학교생활<span aria-hidden="true">›</span>학사일정</p>
+        <h1>학사일정</h1>
+      </div>
+    </div>
+    <div class="wrap sub">
+      <div class="week-nav" data-month-nav></div>
+      <div class="filter" role="group" aria-label="학년" data-grade-filter>
+        <button type="button" aria-pressed="true" data-grade="">전체</button>
+        <button type="button" aria-pressed="false" data-grade="1">1학년</button>
+        <button type="button" aria-pressed="false" data-grade="2">2학년</button>
+        <button type="button" aria-pressed="false" data-grade="3">3학년</button>
+      </div>
+      <div data-calendar><p class="loading">불러오는 중</p></div>
+      <div data-schedule-list></div>
+      <p class="note">일정 자료: 나이스 교육정보 개방 포털. 학교 사정에 따라 일정이 바뀔 수 있습니다.</p>
+    </div>
+  </main>
+  <footer id="site-footer" class="site-footer"></footer>
+  <script src="assets/js/vendor/supabase.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/pages/schedule.js"></script>
+</body>
+</html>

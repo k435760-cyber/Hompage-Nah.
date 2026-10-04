@@ -10,7 +10,8 @@
 | `about.html` | 교훈, 학교 상징, 학교 개요, 오시는 길 |
 | `notice.html` | 공지사항 목록·검색·상세. 관리자는 글쓰기/삭제 가능 |
 | `news.html` | 학교소식 (분류별 필터) |
-| `meals.html` | 주간 식단표 |
+| `meals.html` | 주간 식단표 (나이스) |
+| `schedule.html` | 월별 학사일정 (나이스) |
 | `privacy.html` | 개인정보 처리방침 |
 | `copyright.html` | 저작권보호 및 이용수칙 |
 | `login.html` | Google 로그인 및 OAuth 콜백 처리 |
@@ -40,7 +41,7 @@
 빌드 과정이 없는 정적 사이트입니다. 저장소를 그대로 올리면 동작합니다.
 
 ```
-index.html, about.html, notice.html, news.html, meals.html, login.html
+index.html, about.html, notice.html, news.html, meals.html, schedule.html, login.html, privacy.html, copyright.html
 assets/css/style.css        디자인
 assets/js/config.js         학교 정보, Supabase 설정
 assets/js/common.js         공통 기능 (로그인, 데이터, 머리말/꼬리말)

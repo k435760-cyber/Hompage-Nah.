@@ -1,6 +1,7 @@
 (function () {
   'use strict';
 
+  const { fetchSchedule, groupEvents } = window.App;
   const { mountLayout, loginRequired, showError, getUser, fetchNotices, fetchNews, fetchMeals, sameDay, splitAllergy, escapeHtml, formatDate, isRecent, WEEKDAYS } = window.App;
 
   mountLayout('home');
@@ -27,6 +28,27 @@
           .join('');
       })
       .catch(() => (mealEl.innerHTML = '<p class="today__empty">식단을 불러오지 못했습니다.</p>'));
+  }
+
+  // 오늘부터 60일 안의 일정 중 앞의 4개
+  function loadUpcoming() {
+    const el = document.querySelector('[data-upcoming]');
+    const until = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 60);
+    fetchSchedule(new Date(now.getFullYear(), now.getMonth(), now.getDate()), until)
+      .then((events) => {
+        const next = groupEvents(events, { ignoreGrades: true }).slice(0, 4);
+        if (!next.length) return (el.innerHTML = '<li class="empty">예정된 일정이 없습니다.</li>');
+        const md = (d) => `${d.getMonth() + 1}.${d.getDate()}`;
+        el.innerHTML = next
+          .map(
+            (e) => `<li class="${e.holiday ? 'is-holiday' : ''}">
+              <b>${sameDay(e.start, e.end) ? `${md(e.start)}(${WEEKDAYS[e.start.getDay()]})` : `${md(e.start)}~${md(e.end)}`}</b>
+              <span>${escapeHtml(e.name)}</span>
+            </li>`
+          )
+          .join('');
+      })
+      .catch(() => (el.innerHTML = '<li class="empty">일정을 불러오지 못했습니다.</li>'));
   }
 
   async function load() {
@@ -76,5 +98,6 @@
   }
 
   loadMeal();
+  loadUpcoming();
   load();
 })();

@@ -221,6 +221,67 @@
       .sort((x, y) => x.date - y.date);
   }
 
+  // ---------- 학사일정 (NEIS) ----------
+  const parseYmd = (v) => new Date(+v.slice(0, 4), +v.slice(4, 6) - 1, +v.slice(6, 8));
+  const HIDDEN_EVENTS = ['토요휴업일'];
+
+  // from~to 기간의 학사일정. grades 는 해당 학년 목록(1~3)입니다.
+  async function fetchSchedule(from, to) {
+    const neis = school.neis;
+    const url = new URL('https://open.neis.go.kr/hub/SchoolSchedule');
+    url.search = new URLSearchParams({
+      KEY: neis.key,
+      Type: 'json',
+      pIndex: '1',
+      pSize: '1000',
+      ATPT_OFCDC_SC_CODE: neis.officeCode,
+      SD_SCHUL_CODE: neis.schoolCode,
+      AA_FROM_YMD: ymd(from),
+      AA_TO_YMD: ymd(to),
+    }).toString();
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`NEIS ${res.status}`);
+    const json = await res.json();
+    if (!json.SchoolSchedule) {
+      if (json.RESULT?.CODE === 'INFO-200') return [];
+      throw new Error(json.RESULT?.MESSAGE || 'NEIS error');
+    }
+    return (json.SchoolSchedule[1]?.row ?? [])
+      .filter((r) => r.EVENT_NM && !HIDDEN_EVENTS.includes(r.EVENT_NM.trim()))
+      .map((r) => ({
+        date: parseYmd(r.AA_YMD),
+        name: r.EVENT_NM.trim(),
+        holiday: r.SBTR_DD_SC_NM === '공휴일' || r.SBTR_DD_SC_NM === '휴업일',
+        grades: [
+          ['ONE_GRADE_EVENT_YN', 1],
+          ['TW_GRADE_EVENT_YN', 2],
+          ['THREE_GRADE_EVENT_YN', 3],
+        ]
+          .filter(([k]) => r[k] === 'Y')
+          .map(([, g]) => g),
+      }))
+      .sort((a, b) => a.date - b.date);
+  }
+
+  // 같은 이름·학년의 행사가 연달아 있으면 하나로 묶습니다. (추석 9.24~9.26)
+  // ignoreGrades 면 학년이 달라도 이름만 같으면 묶습니다. (요약용)
+  function groupEvents(events, { ignoreGrades = false } = {}) {
+    const out = [];
+    events.forEach((e) => {
+      const last = [...out].reverse().find((g) => g.name === e.name && (ignoreGrades || g.grades.join() === e.grades.join()));
+      const nextDay = last && new Date(last.end.getFullYear(), last.end.getMonth(), last.end.getDate() + 1);
+      if (last && sameDay(nextDay, e.date)) last.end = e.date;
+      else out.push({ ...e, start: e.date, end: e.date });
+    });
+    return out.sort((a, b) => a.start - b.start);
+  }
+
+  function gradeLabel(grades) {
+    if (!grades.length || grades.length === 3) return '';
+    return `${grades.join('·')}학년`;
+  }
+
   function sameDay(a, b) {
     return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
   }
@@ -230,6 +291,7 @@
     { id: 'about', href: 'about.html', label: '학교소개' },
     { id: 'notice', href: 'notice.html', label: '공지사항' },
     { id: 'news', href: 'news.html', label: '학교소식' },
+    { id: 'schedule', href: 'schedule.html', label: '학사일정' },
     { id: 'meals', href: 'meals.html', label: '급식안내' },
   ];
 
@@ -386,6 +448,7 @@
     formatDate, isRecent, escapeHtml, textToHtml, safeImageUrl,
     getUser, getProfile, displayName, safeNext, signInWithGoogle, signOut,
     fetchNotices, fetchNotice, fetchAdjacentNotices, fetchNews, fetchMeals, splitAllergy, sameDay,
+    fetchSchedule, groupEvents, gradeLabel,
     mountLayout, loginRequired, showError, googleIcon,
   };
 })();

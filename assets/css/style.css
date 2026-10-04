@@ -297,7 +297,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 /* ---------- news ---------- */
 .filter { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
 .filter button { height: 36px; padding: 0 16px; border: 1px solid var(--line); background: #fff; border-radius: 18px; font-size: 14px; }
-.filter button[aria-selected='true'] { background: var(--navy); border-color: var(--navy); color: #fff; }
+.filter button[aria-selected='true'], .filter button[aria-pressed='true'] { background: var(--navy); border-color: var(--navy); color: #fff; }
 
 .news { border-top: 2px solid var(--ink); }
 .news__item { display: flex; gap: 28px; padding: 28px 0; border-bottom: 1px solid var(--line); }
@@ -329,6 +329,39 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .day__menu small { font-size: 11px; color: var(--muted); }
 .day__none { padding: 40px 0; text-align: center; color: var(--muted); font-size: 14px; }
 .note { margin-top: 20px; font-size: 13px; color: var(--muted); }
+
+/* ---------- schedule ---------- */
+.cal { width: 100%; table-layout: fixed; border-collapse: collapse; border-top: 2px solid var(--ink); }
+.cal th { padding: 10px 4px; background: var(--bg-soft); border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 600; color: var(--ink); }
+.cal th:first-child { color: var(--red); }
+.cal th:last-child { color: #2b5ea7; }
+.cal td { height: 104px; padding: 8px; vertical-align: top; border: 1px solid var(--line-soft); border-top: 0; }
+.cal td:first-child { border-left: 0; }
+.cal td:last-child { border-right: 0; }
+.cal__blank { background: #fafbfc; }
+.cal__day { display: inline-grid; place-items: center; min-width: 26px; height: 26px; font-size: 14px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.cal td.is-sat .cal__day { color: #2b5ea7; }
+.cal td.is-holiday .cal__day { color: var(--red); }
+.cal td.is-today .cal__day { background: var(--navy); color: #fff; border-radius: 50%; }
+.cal__ev { display: block; margin-top: 4px; padding: 2px 6px; font-size: 13px; line-height: 1.45; color: var(--navy); background: #eef2f8; border-left: 2px solid var(--navy); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal__ev.is-holiday { color: var(--red); background: #fbf1ef; border-left-color: var(--red); }
+
+.ev-list { margin-top: 32px; border-top: 2px solid var(--ink); }
+.ev-list li { display: flex; gap: 20px; padding: 14px 8px; border-bottom: 1px solid var(--line); }
+.ev__date { flex: none; width: 140px; font-weight: 600; color: var(--navy); font-variant-numeric: tabular-nums; }
+.ev__date small { font-weight: 400; color: var(--muted); }
+.ev-list li.is-holiday .ev__date, .ev-list li.is-holiday .ev__name { color: var(--red); }
+.ev__name { color: var(--ink); }
+.ev__grade { display: inline-block; margin-left: 6px; padding: 0 6px; font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 2px; vertical-align: 1px; }
+
+.upcoming { border-bottom: 1px solid var(--line); }
+.upcoming__inner { display: flex; align-items: center; gap: 32px; padding-top: 22px; padding-bottom: 22px; }
+.upcoming h2 { flex: none; font-size: 17px; }
+.upcoming__list { flex: 1; min-width: 0; display: flex; gap: 28px; overflow: hidden; }
+.upcoming__list li { flex: none; display: flex; align-items: baseline; gap: 8px; font-size: 15px; white-space: nowrap; }
+.upcoming__list b { color: var(--navy); font-variant-numeric: tabular-nums; }
+.upcoming__list li.is-holiday b, .upcoming__list li.is-holiday span { color: var(--red); }
+.upcoming__list .empty { padding: 0; text-align: left; }
 
 /* ---------- login ---------- */
 .login { padding-top: 72px; padding-bottom: 96px; }
@@ -449,6 +482,16 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   .policy__lead, .policy__toc { padding: 16px; }
   .policy__table { display: block; overflow-x: auto; }
   .policy__table tbody th { white-space: normal; }
+  .cal td { height: 56px; padding: 4px 2px; text-align: center; }
+  .cal__ev { display: none; }
+  .cal td.has-event .cal__day::after { content: ''; display: block; width: 5px; height: 5px; margin: 2px auto 0; border-radius: 50%; background: var(--navy); }
+  .cal td.has-event.is-holiday .cal__day::after { background: var(--red); }
+  .cal td.is-today.has-event .cal__day::after { background: #fff; }
+  .cal__day { display: inline-block; min-width: 28px; height: auto; padding: 2px 0; line-height: 1.3; }
+  .ev-list li { gap: 12px; padding: 12px 4px; }
+  .ev__date { width: 108px; font-size: 14px; }
+  .upcoming__inner { flex-direction: column; align-items: flex-start; gap: 10px; padding-top: 18px; padding-bottom: 18px; }
+  .upcoming__list { flex-direction: column; gap: 6px; width: 100%; }
   .news__item { flex-direction: column; gap: 16px; }
   .news__img { width: 100%; }
   .week-nav { gap: 12px; }
