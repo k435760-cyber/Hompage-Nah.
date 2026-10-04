@@ -22,7 +22,13 @@
   const eventCache = new Map(); // 주 → 학사일정
 
   // 이런 일정이 있는 날은 수업 대신 일정을 보여 줍니다. (시험, 공휴일·휴업일, 방학 등)
-  const REPLACES_CLASSES = /고사|시험|평가|방학|휴업|재량|개교기념|졸업식|입학식|수학여행|수련|현장체험/;
+  // 일정 종류 (이름으로 판단)
+  //  - 고사: 교시별 시험 과목을 그대로 보여 주고 시험일로 표시
+  //  - 행사: 수업 대신 하루(또는 해당 학년) 전체가 행사 → 칸을 합쳐 행사 이름 표시
+  //  - 공휴일·휴업일: 칸을 합쳐 빨간색으로 표시
+  //  - 그 밖(백일장, 설명회 등): 날짜 아래 작은 메모
+  const EXAM = /고사|시험|평가/;
+  const SCHOOL_EVENT = /방학식|종업식|졸업식|입학식|개교기념|재량휴업|수학여행|수련|현장체험|체험학습|진로의\s?날|학예|축제|체육대회|운동회|교육$/;
 
   // 마지막으로 본 반은 이 브라우저에만 기억합니다.
   const store = {
@@ -100,45 +106,72 @@
   }
 
   // 선택한 학년에 해당하는 그날의 일정
-  function eventsOn(events, d) {
-    const g = Number(sel.grade);
-    return events.filter((e) => sameDay(e.date, d) && (!e.grades.length || e.grades.includes(g)));
+  // 이 일정이 선택한 학년에 해당하는지
+  //  - 이름에 학년이 있으면("3학년 기말고사") 그 학년만
+  //  - 공휴일·휴업일은 학교 전체
+  //  - 고사는 나이스 학년 표시가 실제와 다를 때가 있어서, 표시가 없어도
+  //    그날 이 반 시간표가 4교시 이하로 짧으면 시험일로 봅니다.
+  function appliesTo(e, g, day) {
+    const named = e.name.match(/([1-3])학년/);
+    if (named) return Number(named[1]) === g;
+    if (e.holiday) return true;
+    if (!e.grades.length || e.grades.includes(g)) return true;
+    const periods = day ? Object.keys(day).length : 0;
+    return EXAM.test(e.name) && periods > 0 && periods <= 4;
+  }
+
+  function classify(evs, hasClasses) {
+    const holiday = evs.find((e) => e.holiday);
+    if (holiday) return { kind: 'holiday', main: holiday };
+    const event = evs.find((e) => SCHOOL_EVENT.test(e.name));
+    if (event) return { kind: 'event', main: event };
+    const exam = evs.find((e) => EXAM.test(e.name));
+    // 시간표가 없는 시험일은 칸을 합쳐 시험 이름만 보여 줍니다.
+    if (exam) return { kind: hasClasses ? 'exam' : 'event', main: exam };
+    return { kind: 'normal', main: null };
   }
 
   function tableHtml(days, data, events) {
+    const g = Number(sel.grade);
     const dayInfo = days.map((d) => {
-      const evs = eventsOn(events, d);
-      const main = evs.find((e) => e.holiday || REPLACES_CLASSES.test(e.name));
-      return { d, evs, main, others: evs.filter((e) => e !== main) };
+      const day = data[ymd(d)];
+      const evs = events.filter((e) => sameDay(e.date, d) && appliesTo(e, g, day));
+      const { kind, main } = classify(evs, Boolean(day && Object.keys(day).length));
+      return { d, day, kind, main, others: evs.filter((e) => e !== main) };
     });
     const hasAny = Object.keys(data).length > 0 || dayInfo.some((x) => x.main);
     if (!hasAny) return '<p class="empty">이 주의 시간표가 아직 등록되지 않았거나 수업이 없는 주입니다.</p>';
 
     const maxPeriod = Math.min(
       PERIODS + 1,
-      Math.max(6, ...Object.values(data).flatMap((d) => Object.keys(d).map(Number)))
+      Math.max(6, ...Object.values(data).flatMap((x) => Object.keys(x).map(Number)))
     );
     const head = dayInfo
-      .map(({ d, others }) => `<th scope="col" class="${sameDay(d, today) ? 'is-today' : ''}">${WEEKDAYS[d.getDay()]}<small>${d.getMonth() + 1}.${d.getDate()}</small>${others
-        .map((e) => `<span class="tt__note">${escapeHtml(e.name)}</span>`)
-        .join('')}</th>`)
+      .map(({ d, kind, main, others }) => {
+        const badge = kind === 'exam' ? `<span class="tt__badge">${escapeHtml(main.name)}</span>` : '';
+        const notes = others.map((e) => `<span class="tt__note">${escapeHtml(e.name)}</span>`).join('');
+        const cls = [sameDay(d, today) ? 'is-today' : '', kind === 'exam' ? 'is-exam' : ''].filter(Boolean).join(' ');
+        return `<th scope="col" class="${cls}">${WEEKDAYS[d.getDay()]}<small>${d.getMonth() + 1}.${d.getDate()}</small>${badge}${notes}</th>`;
+      })
       .join('');
 
     const rows = [];
     for (let p = 1; p <= maxPeriod; p += 1) {
-      const cells = dayInfo.map(({ d, main }) => {
-        const todayCls = sameDay(d, today) ? ' is-today' : '';
-        if (main) {
-          // 일정이 있는 날은 한 칸으로 합쳐 일정 이름만 보여 줍니다.
+      const cells = dayInfo.map(({ d, day, kind, main }) => {
+        const todayCls = sameDay(d, today) ? 'is-today' : '';
+        if (kind === 'holiday' || kind === 'event') {
           if (p > 1) return '';
-          // 시험일처럼 수업이 줄어든 날은 나이스에 등록된 교시 수를 함께 적습니다.
-          const periods = main.holiday ? 0 : Object.keys(data[ymd(d)] || {}).length;
-          const span = periods && periods < maxPeriod ? `<small>1~${periods}교시</small>` : '';
-          return `<td class="tt__event${main.holiday ? ' is-holiday' : ''}${todayCls}" rowspan="${maxPeriod}">${escapeHtml(main.name)}${span}</td>`;
+          const cls = ['tt__event', kind === 'holiday' ? 'is-holiday' : '', todayCls].filter(Boolean).join(' ');
+          return `<td class="${cls}" rowspan="${maxPeriod}">${escapeHtml(main.name)}</td>`;
         }
-        const day = data[ymd(d)];
-        const cls = [todayCls.trim(), !day ? 'is-off' : ''].filter(Boolean).join(' ');
-        return `<td class="${cls}">${escapeHtml(day?.[p] || '')}</td>`;
+        const subject = day?.[p] || '';
+        if (kind === 'exam') {
+          // 시험일: 교시마다 나이스에 등록된 시험 과목, 시험이 끝난 교시는 비워 둡니다.
+          const cls = ['tt__exam', !subject ? 'is-done' : '', todayCls].filter(Boolean).join(' ');
+          return `<td class="${cls}">${escapeHtml(subject)}</td>`;
+        }
+        const cls = [todayCls, !day ? 'is-off' : ''].filter(Boolean).join(' ');
+        return `<td class="${cls}">${escapeHtml(subject)}</td>`;
       });
       rows.push(`<tr><th scope="row">${p}교시</th>${cells.join('')}</tr>`);
     }
