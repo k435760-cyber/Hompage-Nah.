@@ -156,11 +156,14 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 .transit p { margin: 0; }
 .transit__buses { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .transit__kind { font-size: 12px; font-weight: 600; color: var(--muted); margin-right: 4px; }
-.transit__buses b {
-  min-width: 34px; padding: 2px 8px; text-align: center; font-size: 14px; font-weight: 700;
-  color: #fff; background: var(--navy); border-radius: 3px; font-variant-numeric: tabular-nums;
+.transit__buses .bus {
+  min-width: 34px; padding: 2px 8px; text-align: center; font-size: 14px; font-weight: 700; line-height: 1.6;
+  color: #fff; background: var(--navy); border: 0; border-radius: 3px; font-variant-numeric: tabular-nums;
+  cursor: pointer; transition: transform .1s, box-shadow .1s;
 }
-.transit__buses--green b { background: #2e8540; }
+.transit__buses .bus:hover { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--navy); }
+.transit__buses--green .bus { background: #2e8540; }
+.transit__buses--green .bus:hover { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2e8540; }
 .transit__stop { margin-top: 6px !important; font-size: 15px; }
 .transit__stop strong { color: var(--ink); }
 
@@ -468,6 +471,30 @@ input.sr-only:focus-visible + .picker-btn--file { outline: 2px solid var(--gold)
 .field__label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--ink); }
 .btn--solid-danger { background: var(--red); border-color: var(--red); }
 .btn--solid-danger:hover { background: #962f21; }
+
+/* 버스 노선 모달 */
+.modal--route { width: min(480px, calc(100% - 32px)); }
+.modal--route .modal__panel { max-height: min(720px, calc(100vh - 48px)); }
+.route__info { margin: 0 0 6px; font-size: 15px; }
+.route__info em { font-style: normal; font-weight: 700; color: var(--red); }
+.route__meta { margin: 0 0 14px; font-size: 13px; color: var(--muted); }
+.route__empty { margin: 16px 0 4px; padding: 20px; text-align: center; color: var(--muted); background: var(--bg-soft); }
+.route { --line-c: var(--navy); position: relative; margin: 0; padding: 0; list-style: none; }
+.modal--route.is-green .route { --line-c: #2e8540; }
+.route::before { content: ''; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 3px; background: var(--line-c); border-radius: 2px; }
+.route li { position: relative; display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 4px 0 4px 28px; font-size: 15px; color: var(--ink); }
+.route li::before {
+  content: ''; position: absolute; left: 2px; top: 50%; width: 13px; height: 13px; margin-top: -6.5px;
+  background: #fff; border: 3px solid var(--line-c); border-radius: 50%; box-sizing: border-box;
+}
+.route li + li { border-top: 1px solid var(--line-soft); }
+.route li.is-edge .route__name { font-weight: 700; }
+.route__edge { font-size: 11px; font-weight: 600; color: var(--muted); }
+.route li.is-hit .route__name { color: var(--red); font-weight: 800; }
+.route li.is-hit::before { border-color: var(--red); background: var(--red); }
+.route__tag { padding: 0 6px; font-size: 11px; font-weight: 700; line-height: 1.6; color: #fff; background: var(--red); border-radius: 2px; }
+.route li.route__turn { min-height: 30px; padding-left: 28px; font-size: 12px; font-weight: 700; color: var(--muted); background: var(--bg-soft); }
+.route li.route__turn::before { border-style: dashed; }
 
 /* ---------- policy ---------- */
 .policy { max-width: 880px; font-size: 16px; line-height: 1.8; }

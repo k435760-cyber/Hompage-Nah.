@@ -546,7 +546,7 @@
       .map(
         (t) => `<li>
           <p class="transit__buses${t.color === 'green' ? ' transit__buses--green' : ''}"><span class="transit__kind">${escapeHtml(t.kind || '버스')}</span>${t.buses
-            .map((b) => `<b>${escapeHtml(b)}</b>`)
+            .map((b) => `<button type="button" class="bus" data-bus="${escapeHtml(b)}" aria-haspopup="dialog" aria-label="${escapeHtml(b)}번 노선 보기">${escapeHtml(b)}</button>`)
             .join('')}</p>
           <p class="transit__stop">${t.direction ? `<strong>${escapeHtml(t.direction)}</strong> · ` : ''}${t.stops
             .map((s) => escapeHtml(s))
@@ -555,6 +555,55 @@
       )
       .join('')}</ul>`;
   }
+
+  // ---------- 버스 노선 ----------
+  const normStop = (v) => String(v).replace(/[\s.·()]/g, '').replace(/종점$/, '');
+
+  function busRouteHtml(bus, group) {
+    const data = (window.BUS_ROUTES || {})[bus] || {};
+    const targets = new Set((group?.stops || []).map(normStop));
+    const getOff = group?.stops?.length
+      ? `<p class="route__info">${group.direction ? `<strong>${escapeHtml(group.direction)}</strong> · ` : ''}<em>${group.stops.map(escapeHtml).join('</em> 또는 <em>')}</em> 정류장에서 내리면 학교와 가깝습니다.</p>`
+      : '';
+    const list = data.stops || data.nearby;
+    if (!list?.length) {
+      return `${getOff}<p class="route__empty">이 버스의 노선 정보는 아직 준비 중입니다.</p>`;
+    }
+    const realStops = list.filter((x) => x !== '(회차)');
+    const items = list
+      .map((name, i) => {
+        if (name === '(회차)') return '<li class="route__turn" aria-label="회차 지점"><span>회차</span></li>';
+        const hit = targets.has(normStop(name));
+        const edge = data.stops && (name === realStops[0] && i === 0 ? '기점' : i === list.length - 1 ? '종점' : '');
+        return `<li class="${hit ? 'is-hit' : ''}${edge ? ' is-edge' : ''}">
+          <span class="route__name">${escapeHtml(name)}</span>${hit ? '<span class="route__tag">하차</span>' : ''}${edge ? `<span class="route__edge">${edge}</span>` : ''}
+        </li>`;
+      })
+      .join('');
+    const note = data.stops
+      ? `<p class="route__meta">정류장 ${realStops.length}곳 · 위에서 아래 순서로 운행합니다.</p>`
+      : '<p class="route__meta">학교 근처 구간만 표시합니다. 전체 노선은 준비 중입니다.</p>';
+    return `${getOff}${note}<ol class="route">${items}</ol>`;
+  }
+
+  function openBusRoute(bus) {
+    const group = (school.transit || []).find((t) => t.buses.includes(bus));
+    const kind = group?.kind || '버스';
+    return openDialog({
+      title: `${kind} ${bus}${/^\d+$/.test(bus) ? '번' : ''} 노선`,
+      className: `modal--route${group?.color === 'green' ? ' is-green' : ''}`,
+      body: busRouteHtml(bus, group),
+      onMount: (dlg) => {
+        // 처음 열면 첫 하차 정류장이 보이도록
+        requestAnimationFrame(() => dlg.querySelector('.route .is-hit')?.scrollIntoView({ block: 'center' }));
+      },
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-bus]');
+    if (btn) openBusRoute(btn.dataset.bus);
+  });
 
   async function renderAuth(slot) {
     const user = await getUser();
