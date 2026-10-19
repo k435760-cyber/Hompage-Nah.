@@ -67,6 +67,10 @@ python3 -m http.server 8000   # http://localhost:8000
    - Site URL: 실제 도메인 (예: `https://school.example.com`)
    - Redirect URLs: `https://school.example.com/**` (하위 경로에 올렸다면 그 경로까지 포함), 개발용 `http://localhost:8000/**`
 
+## 캐시
+
+HTML은 `assets/` 파일을 `?v=날짜` 를 붙여 불러오고, `assets/` 는 매번 서버에 변경 여부를 확인하도록(`Cache-Control: no-cache`) 설정되어 있어 수정 사항이 바로 반영됩니다.
+
 ## 배포
 
 빌드 없이 저장소 폴더를 그대로 올리면 됩니다.

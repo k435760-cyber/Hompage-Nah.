@@ -4,5 +4,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 
+# 파일 이름이 고정이라 오래 캐시하면 수정이 반영되지 않습니다.
+# 매번 서버에 바뀌었는지 확인하고(바뀌지 않았으면 다시 받지 않음) 최신 파일을 씁니다.
 /assets/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: no-cache
