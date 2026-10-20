@@ -67,6 +67,15 @@ python3 -m http.server 8000   # http://localhost:8000
    - Site URL: 실제 도메인 (예: `https://school.example.com`)
    - Redirect URLs: `https://school.example.com/**` (하위 경로에 올렸다면 그 경로까지 포함), 개발용 `http://localhost:8000/**`
 
+## UI 버전
+
+| 이름 | 버전 | 단계 |
+| --- | --- | --- |
+| SC UI | 1.0 | 정식 |
+| Forma | 1.0 | 베타 (현재, 이후 모든 업데이트) |
+
+현재 UI 이름과 버전은 `assets/js/config.js`의 `SITE_UI`에 있고, 모든 페이지 하단에 표시됩니다. 별도 안내가 없으면 버전은 그대로 유지합니다. (파일 주소의 `?v=날짜`는 캐시용 번호로, UI 버전과는 별개입니다.)
+
 ## 캐시
 
 HTML은 `assets/` 파일을 `?v=날짜` 를 붙여 불러오고, `assets/` 는 매번 서버에 변경 여부를 확인하도록(`Cache-Control: no-cache`) 설정되어 있어 수정 사항이 바로 반영됩니다.

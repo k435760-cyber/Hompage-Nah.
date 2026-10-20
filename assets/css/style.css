@@ -1,3 +1,4 @@
+/* Forma 1.0 (베타) — 영도제일중학교 홈페이지 UI */
 :root {
   --navy: #16325c;
   --navy-dark: #0f2343;
@@ -524,6 +525,7 @@ input.sr-only:focus-visible + .picker-btn--file { outline: 2px solid var(--gold)
 .footer__name { margin: 0 0 6px; font-family: var(--serif); font-size: 17px; color: #fff; }
 .site-footer address { font-style: normal; line-height: 1.8; }
 .footer__copy { margin: 12px 0 0; font-size: 12px; color: #7d828a; }
+.footer__ui { margin-left: 10px; padding: 1px 6px; font-size: 11px; color: #a9aeb6; border: 1px solid #3a3e45; border-radius: 2px; white-space: nowrap; }
 
 /* ---------- responsive ---------- */
 @media (max-width: 1024px) {
