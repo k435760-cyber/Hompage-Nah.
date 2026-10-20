@@ -504,14 +504,6 @@
       </div>`;
   }
 
-  // 하단에 표시할 UI 이름 (예: Forma 1.0 베타)
-  function uiLabel() {
-    const ui = window.SITE_UI;
-    if (!ui?.name) return '';
-    const text = [ui.name, ui.version, ui.stage].filter(Boolean).join(' ');
-    return `<span class="footer__ui">${escapeHtml(text)}</span>`;
-  }
-
   function footerHtml() {
     return `
       <div class="wrap footer__inner">
@@ -527,7 +519,7 @@
           ${escapeHtml(school.address)}<br>
           교무실 ${escapeHtml(school.tel)} &nbsp;·&nbsp; 팩스 ${escapeHtml(school.fax)}
         </address>
-        <p class="footer__copy">© ${new Date().getFullYear()} ${escapeHtml(school.name)}. All rights reserved.${uiLabel()}</p>
+        <p class="footer__copy">© ${new Date().getFullYear()} ${escapeHtml(school.name)}. All rights reserved.</p>
       </div>`;
   }
 

@@ -48,15 +48,6 @@ window.SCHOOL = {
   ],
 };
 
-// 사이트 UI 이름과 버전. 별도 안내가 없으면 버전은 그대로 둡니다.
-//  - SC UI 1.0 : 정식
-//  - Forma 1.0 : 베타 (이후 모든 업데이트)
-window.SITE_UI = {
-  name: 'Forma',
-  version: '1.0',
-  stage: '베타',
-};
-
 // publishable 키는 브라우저에 노출되어도 되는 키입니다. 데이터 보호는 Supabase RLS가 담당합니다.
 window.SUPABASE_CONFIG = {
   url: 'https://dbneonomwrqwlbitwdtr.supabase.co',
